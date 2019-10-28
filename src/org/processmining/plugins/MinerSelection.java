@@ -43,7 +43,7 @@ public class MinerSelection {
 			case Inductive_Miner :
 				System.out.println("This is the " + Miners.Inductive_Miner + " Case");
 				IM im = new IM();
-//				return im.mineFScore(context, log);
+				im.mineFScore(context, log);
 			//				break;
 
 			case Split_Miner :
