@@ -1,4 +1,4 @@
-package org.processmining.plugins.splitminer;
+package org.processmining.plugins;
 
 
 public enum Miners {

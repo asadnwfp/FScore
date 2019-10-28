@@ -1,14 +1,17 @@
-package org.processmining.plugins.splitminer;
+package org.processmining.plugins;
 
 import org.deckfour.uitopia.api.event.TaskListener.InteractionResult;
 import org.deckfour.xes.model.XLog;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
+import org.processmining.dialogues.DialogueChooser;
 import org.processmining.dialogues.ResultBoard;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginLevel;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.plugins.parameter.MatrixFilterParameter;
+import org.processmining.plugins.splitminer.SM;
+import org.processmining.plugins.splitminer.SplitMinerinProMPlugin;
 
 public class MinerSelection {
 	@Plugin(name = "Dialogue Chooser SM/IM", level = PluginLevel.Local, returnLabels = { "JTable" }, returnTypes = {

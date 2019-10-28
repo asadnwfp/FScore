@@ -3,6 +3,7 @@ package org.processmining.plugins.splitminer;
 import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.info.impl.XLogInfoImpl;
 import org.deckfour.xes.model.XLog;
+import org.processmining.dialogues.DialogueChooser;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.plugins.parameter.MatrixFilterParameter;
 import org.processmining.splitMinerNewVersion.SplitMinerNewVersion;
@@ -16,7 +17,7 @@ public class SM {
 
 	private final double minEpsilon, maxEpsilon, minFreq, maxFreq, stepIncrement;
 	private final XLog log;
-	SM(DialogueChooser dialog, XLog log){
+	public SM(DialogueChooser dialog, XLog log){
 	this(
 			dialog.getMinEpsilon(),
 			dialog.getMaxEpsilon(),

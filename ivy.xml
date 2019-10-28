@@ -1,5 +1,5 @@
 <ivy-module version="2.0">
-    <info organisation="prom" module="GettingStarted" revision="latest">
+    <info organisation="prom" module="FScore" revision="latest">
     	<description>
     		Version VERSION
     	</description>
@@ -14,6 +14,7 @@
     	<dependency org="prom" name="PNetReplayer" rev="latest" changing="true" transitive="true" />
         <dependency org="prom" name="PNetReplayer" rev="latest" changing="true" transitive="true" />
         <dependency org="prom" name="ETConformance" rev="latest" changing="true" transitive="true" />
+        <dependency org="prom" name="ILPMiner" rev="latest" changing="true" transitive="true" />
         <dependency org="prom" name="LogFiltering" rev="latest" changing="true" transitive="true" />
         <dependency conf="lib->default" org="org.eclipse.collections" name="eclipse-collections" rev="9.2.0" />
         <dependency org="prom" name="DecomposedReplayer" rev="latest" changing="true" transitive="true" />  
