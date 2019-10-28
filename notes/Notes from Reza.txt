@@ -1,0 +1,175 @@
+@Plugin(
+				name = "Mine Petri net with Inductive Miner, with parameters",
+				returnLabels = { "Petri net","Initial marking", "final marking" },
+				returnTypes = { Petrinet.class, Marking.class,Marking.class },
+				parameterLabels = { "Log", "IM Parameters" },
+				userAccessible = true,
+				level = PluginLevel.Local)
+		@PluginVariant(variantLabel = "Mine a Process Tree, parameters", requiredParameterLabels = { 0, 1 })
+		public static Object[] minePetriNet(PluginContext context, XLog log, MiningParameters parameters) {
+			context.log("Mining...");
+			Object[] resultObjects= IMPetriNet.minePetriNet(context, log, parameters);
+			ResultBoard results = new ResultBoard();
+			results.revalidate();
+			results.repaint();
+			
+			PNLogReplayer replayer = new PNLogReplayer();
+			Petrinet pn = (Petrinet) resultObjects[0];
+			
+			return resultObjects;
+		}
+
+Designing Interactive Systems (Winter 2019/20)
+
+
+ShortesPath for Empty Trace
+Fitness: 1- ((cost of optimal alignment )/ (length of trace + shortest path in model))
+
+ETC -> Precision:
+
+F-Measure : 2 (Precision * Fitness)/(Precision + Fitness)
+F-Score:  same thing
+
+Use Varience instead of trace, 
+
+
+public static double[] doAlignment (ReplayerParameters RepParameters, AcceptingPetriNet TempModel, HashMap<Integer, XTrace> VariantMapper,XEventClasses classes,TransEvClassMapping mapping) {
+		 double[] AlignmentCosts= new double [VariantMapper.size()];
+		
+		 
+		 Marking initalM = TempModel.getInitialMarking();
+		 Marking  finalM = getFinalMarking(TempModel.getNet());
+			Replayer replayer = new Replayer(RepParameters, TempModel.getNet(), initalM,finalM , classes, mapping, false);
+		 Future<TraceReplayTask>[] futures = new Future[VariantMapper.size()];
+		 ExecutorService service = Executors.newFixedThreadPool(RepParameters.nThreads);
+		 for (int i = 0; i < VariantMapper.size(); i++) {
+		 		// Setup the trace replay task
+		 		TraceReplayTask task = new TraceReplayTask(replayer, RepParameters, VariantMapper.get(i), i, 2000000,
+		 		RepParameters.maximumNumberOfStates, 0);
+
+		 		// submit for execution
+		 		futures[i] = service.submit(task);
+		 	}
+		 
+		double AlignFit=0;
+		double AlignCost=0;
+		 	// obtain the results one by one.
+		
+		 	for (int i = 0; i < VariantMapper.size(); i++) {
+
+		 		TraceReplayTask result;
+		 		try {
+		 			result = futures[i].get();
+		 		} catch (Exception e) {
+		 			// execution os the service has terminated.
+		 			assert false;
+		 			throw new RuntimeException("Error while executing replayer in ExecutorService. Interrupted maybe?", e);
+		 		}
+		 		SyncReplayResult replayResult = result.getSuccesfulResult();
+		 		 AlignmentCosts[i]= replayResult.getInfo().get("Raw Fitness Cost");
+		 		List<Object> ModelBehavior = replayResult.getNodeInstance();
+		 		 List<StepTypes> TypeBehavior = replayResult.getStepTypes();
+
+		 		}
+			return AlignmentCosts;
+	}
+
+
+// Default Map
+EvantClassifier: EventName --> 
+private static TransEvClassMapping constructMapping(PetrinetGraph net, XLog log, XEventClass dummyEvClass,
+			XEventClassifier eventClassifier) {
+		TransEvClassMapping mapping = new TransEvClassMapping(eventClassifier, dummyEvClass);
+
+		XLogInfo summary = XLogInfoFactory.createLogInfo(log, eventClassifier);
+
+		for (Transition t : net.getTransitions()) {
+			boolean mapped = false;
+
+			for (XEventClass evClass : summary.getEventClasses().getClasses()) {
+				String id = evClass.getId();
+				String label = t.getLabel();
+												
+				if (label.equals(id)) {
+					mapping.put(t, evClass);
+					mapped = true;
+					break;
+				}
+			}
+		}
+		System.out.println("mapping");
+		System.out.println(mapping);
+ 
+		return mapping;
+		}
+
+ 
+Feb : 29 Lunch
+March : 1, Lunch Dinner
+March : 7, Lunch
+March : 8, Lunch
+
+
+Precision: 
+Do-Alighn: Alignment
+
+Log Filtering :  by Reza  in svn
+how splitminer have been used.
+
+
+##########################################
+ILP Miner:
+##########################################
+//	protected XEventClassifierAwareSimpleCausalGraph getCausalGraph() throws UserError {
+//		XEventClassifierAwareSimpleCausalGraphIOObject cagIoobj = inputCausalGraph
+//				.getDataOrNull(XEventClassifierAwareSimpleCausalGraphIOObject.class);
+//		XEventClassifierAwareSimpleCausalGraph cag = null;
+//		if (cagIoobj == null) {
+//			HeuristicsConfig heuristicsConfig = new HeuristicsConfig();
+//			heuristicsConfig.setAllTasksConnected(true);
+//			HeuristicsCausalGraphMiner miner = new HeuristicsCausalGraphMiner(getXLog(), getXEventClassifier());
+//			miner.setHeuristicsConfig(heuristicsConfig);
+//			SimpleCausalGraph scag = miner.mineCausalGraph();
+//			cag = XEventClassifierAwareSimpleCausalGraph.Factory.construct(getXEventClassifier(),
+//					scag.getSetActivities(), scag.getCausalRelations());
+//		} else {
+//			cag = cagIoobj.getArtifact();
+//		}
+//		return cag;
+
+##############################################################################
+
+		XLogHybridILPMinerParametersImpl params = new XLogHybridILPMinerParametersImpl(context, log, XLogInfoImpl.NAME_CLASSIFIER);
+
+        params.setFindSink(true);
+      //  params.setFilter(getFilter());
+
+	        Object[] pnAndMarking = HybridILPMinerPlugin.applyFlexHeur(context, log, null, params);
+	        //  Object[] pnAndMarking = HybridILPMinerPlugin.applyFlexHeur(context, log, getCausalGraph(), params);
+
+
+##############################################################################
+
+SplitMiner
+
+############################################################################
+//			SplitMinerNewVersion miner = new SplitMinerNewVersion();
+//			// added the classifier to the arguments of mineBPMNModel
+//			XEventClassifier xEventClassifier = XLogInfoImpl.STANDARD_CLASSIFIER;
+//			BPMNDiagram bpmn = miner.mineBPMNModel(log,  xEventClassifier, 0.4,0.1, FilterType.WTH, false, true, false, StructuringTime.NONE);
+//			
+//		Object[] resultedModel =BPMNToPetriNetConverter.convert(bpmn);
+//		return resultedModel;
+
+###########################################################################
+SplitMinerNewVersion miner = new SplitMinerNewVersion();
+			// added the classifier to the arguments of mineBPMNModel
+			XEventClassifier xEventClassifier = XLogInfoImpl.STANDARD_CLASSIFIER;
+			BPMNDiagram bpmn = miner.mineBPMNModel(OutputLog,  xEventClassifier, parameters.getSecondDoubleVariable(),parameters.getProbabilityOfRemoval(), FilterType.WTH, false, true, false, StructuringTime.NONE);
+			
+		Object[] resultedModel =BPMNToPetriNetConverter.convert(bpmn);
+		
+
+
+Purpose: 
+The idea is to understand human nature and learn how to communicate with them in the right way using the right form. Its hard for people to understand logic and make them understand with logic, if they are not from the related fields, and for this purpose another means of communication should be used which is easy to understand and simple to explain.

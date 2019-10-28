@@ -421,7 +421,7 @@ public class IMMiningDialog extends JPanel {
 	@SuppressWarnings("unchecked")
 	public IMMiningDialog(XLog log) {
 		p.parameters = new MiningParametersIMf();
-		p.variant = new VariantIMf();
+		p.variant = new VariantFScore();
 		SlickerFactory factory = SlickerFactory.instance();
 
 		int gridy = 1;
@@ -742,14 +742,17 @@ public class IMMiningDialog extends JPanel {
 			add(Box.createGlue(), gbcFiller);
 		}
 		
-		minFieldLable.setVisible(false);
-		minFieldValue.setVisible(false);
+		minFieldLable.setVisible(true);
+		minFieldValue.setVisible(true);
 		
-		maxFieldLable.setVisible(false);
-		maxFieldValue.setVisible(false);
+		maxFieldLable.setVisible(true);
+		maxFieldValue.setVisible(true);
 		
-		stepSizeLable.setVisible(false);
-		stepSizeValue.setVisible(false);	
+		stepSizeLable.setVisible(true);
+		stepSizeValue.setVisible(true);	
+		noiseLabel.setVisible(p.variant.hasNoise());
+		noiseSlider.setVisible(p.variant.hasNoise());
+		
 
 		variantCombobox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
