@@ -7,11 +7,12 @@ import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.dialogues.ResultBoard;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginLevel;
+import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.plugins.parameter.MatrixFilterParameter;
 
 public class MinerSelection {
 	@Plugin(name = "Dialogue Chooser SM/IM", level = PluginLevel.Local, returnLabels = { "JTable" }, returnTypes = {
-			ResultBoard.class }, parameterLabels = {"Log"}, userAccessible = true)
+			Petrinet.class }, parameterLabels = {"Log"}, userAccessible = true)
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "Saad Ahmed", email = "saad.ahmed@rwth-aachen.de")
 	
 	public Object mineJTable(UIPluginContext context, XLog log) {
@@ -35,9 +36,9 @@ public class MinerSelection {
 				System.out.println("This is the "+ Miners.Split_Miner +" Case");
 				SM splitMiner = new SM(dialog,log);
 				MatrixFilterParameter parameters = splitMiner.getParameters();
-				SplitMinerinProMPlugin.run(context, log, parameters);
+				return SplitMinerinProMPlugin.run(context, log, parameters);
 				//splitMiner.runSM();
-				break;
+//				break;
 			default:
 				System.out.println("This is the Default Case");
 		}
