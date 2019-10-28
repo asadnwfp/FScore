@@ -81,8 +81,8 @@ public class ILPMiner {
 		InteractionResult r = context.showWizard(
 				"Configure the ILP Mining Algorithm", true, true, ui
 						.initComponents());
-//		if (r == InteractionResult.FINISHED) {
-		if(true) {
+		if (r == InteractionResult.FINISHED) {
+//		if(true) {
 			saveSettings(ui.getSettings());
 			return doILPMiningWithSettings(context, log, XLogInfoFactory
 					.createLogInfo(log), ui.getSettings());
@@ -233,8 +233,8 @@ public class ILPMiner {
 				+ XConceptExtension.instance().extractName(log)
 				+ ", mined with ILP Miner");
 		context.getFutureResult(0).setLabel(net.getLabel());
-		context.getFutureResult(1).setLabel(
-				"Initial Marking of " + net.getLabel());
+//		context.getFutureResult(1).setLabel(
+//				"Initial Marking of " + net.getLabel());
 
 		Map<XEventClass, Integer> indices = new HashMap<XEventClass, Integer>();
 		Map<Integer, Transition> transitions = new HashMap<Integer, Transition>();

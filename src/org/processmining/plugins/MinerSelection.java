@@ -9,18 +9,20 @@ import org.processmining.dialogues.ResultBoard;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginLevel;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
+import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.plugins.ilp.ILPMiner;
 import org.processmining.plugins.inductiveminer.IM;
 import org.processmining.plugins.parameter.MatrixFilterParameter;
 import org.processmining.plugins.splitminer.SM;
 import org.processmining.plugins.splitminer.SplitMinerinProMPlugin;
+import org.processmining.utils.ReusableMethods;
 
 public class MinerSelection {
-	@Plugin(name = "Dialogue Chooser SM/IM", level = PluginLevel.Local, returnLabels = { "JTable" }, returnTypes = {
-			ResultBoard.class }, parameterLabels = { "Log" }, userAccessible = true)
+	@Plugin(name = "Dialogue Chooser SM/IM", level = PluginLevel.Local, returnLabels = { "Petrinet", "Marking" }, returnTypes = {
+			Petrinet.class, Marking.class}, parameterLabels = { "Log" }, userAccessible = true)
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "Saad Ahmed", email = "saad.ahmed@rwth-aachen.de")
 
-	public Object mineLogs(UIPluginContext context, XLog log) throws Exception {
+	public Object[] mineLogs(UIPluginContext context, XLog log) throws Exception {
 
 		DialogueChooser dialog = new DialogueChooser();
 		InteractionResult result = context.showWizard("Choose Miner Dialogue", true, true, dialog);
@@ -33,13 +35,15 @@ public class MinerSelection {
 			case ILP_Miner :
 				System.out.println("This is the " + Miners.ILP_Miner + " Case");
 				ILPMiner ilp = new ILPMiner();
-				ilp.doILPMining(context, log);
+				Object[] objects = ilp.doILPMining(context, log);
+				ReusableMethods.nameAndClassOfObjects(objects);
+				return objects;
 
-				break;
+//				break;
 			case Inductive_Miner :
 				System.out.println("This is the " + Miners.Inductive_Miner + " Case");
 				IM im = new IM();
-				return im.mineFScore(context, log);
+//				return im.mineFScore(context, log);
 			//				break;
 
 			case Split_Miner :
@@ -62,6 +66,16 @@ public class MinerSelection {
 		String[] row = { max, min, stepSize };
 		results.setRow(row);
 
-		return results;
+//		return results;
+		return null;
 	}
+	
+	private ResultBoard calculateFScore(Petrinet pn) {
+		
+		
+		return null;
+		
+	}
+	
+	
 }
