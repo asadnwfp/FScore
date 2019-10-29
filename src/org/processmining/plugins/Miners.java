@@ -4,7 +4,7 @@ package org.processmining.plugins;
 public enum Miners {
 	ILP_Miner("ILP Miner",false,false),
 	Split_Miner("Split Miner",true,true),
-	Inductive_Miner("Inductive Miner",false,false);
+	Inductive_Miner("Inductive Miner",true,false);
 	
 	private final String name;
 	private final boolean frequency;

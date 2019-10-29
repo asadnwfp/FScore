@@ -23,7 +23,7 @@ public class ResultBoard extends JFrame {
 	public ResultBoard() {
 		setTitle("F-Score");
 		resultTable = new JTable();
-		String[] rows = { "Index","Precision", "fitness", "f-Measure" };
+		String[] rows = { "NoiseThreshold","Precision", "fitness", "f-Measure" };
 		colsList = new ArrayList<String[][]>();
 		String [][] cols = null;
 		dtm = new DefaultTableModel(cols, rows);

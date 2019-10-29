@@ -2,7 +2,6 @@ package org.processmining.plugins.inductiveminer;
 
 import javax.swing.JOptionPane;
 
-import org.deckfour.uitopia.api.event.TaskListener.InteractionResult;
 import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.info.XLogInfo;
 import org.deckfour.xes.info.XLogInfoFactory;
@@ -27,31 +26,24 @@ import org.processmining.utils.ReusableMethods;
 import nl.tue.astar.AStarException;
 
 public class IM {
+	private float min,max,step;
+	
 	@Plugin(name = "Mine F-Score with Inductive Miner", level = PluginLevel.Local, returnLabels = {
-			"JTable" }, returnTypes = { ResultBoard.class }, parameterLabels = { "Log" }, userAccessible = true)
+			"Petrinet","ResultBoard" }, returnTypes = { Petrinet.class, ResultBoard.class }, parameterLabels = { "Log" }, userAccessible = true)
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "Saad Ahmed", email = "saad.ahmed@rwth-aachen.de")
 	@PluginVariant(variantLabel = "Mine a Process Tree, dialog", requiredParameterLabels = { 0 })
-	public ResultBoard mineFScore(UIPluginContext context, XLog log) throws AStarException {
-		IMMiningDialog dialog = new IMMiningDialog(log);
-		InteractionResult result = context.showWizard("Mine F-Score using Inductive Miner", true, true, dialog);
+	public Object[] mineFScore(UIPluginContext context, XLog log) throws AStarException {
+		// Disabling dialogue, to run with default values.
+//		IMMiningDialog dialog = new IMMiningDialog(log);
+//		InteractionResult result = context.showWizard("Mine F-Score using Inductive Miner", true, true, dialog);
 		context.log("Mining...");
-		MiningParametersIMf parameters = (MiningParametersIMf) dialog.getMiningParameters();
-
-		if (result != InteractionResult.FINISHED || !confirmLargeLogs(context, log, dialog)) {
-			context.getFutureResult(0).cancel(false);
-			context.getFutureResult(1).cancel(false);
-			context.getFutureResult(2).cancel(false);
-			//return new Object[] { null, null, null };
-			return null;
-		}
+		MiningParametersIMf parameters = new MiningParametersIMf();
 
 		// Initializing JTABLE
 		ResultBoard resultBoard = new ResultBoard();
 
 		// Getting values from Dialogue
-		float max = Float.parseFloat(dialog.maxFieldValue.getText());
-		float min = Float.parseFloat(dialog.minFieldValue.getText());
-		float stepSize = Float.parseFloat(dialog.stepSizeValue.getText());
+		
 
 		PNRepResult pnRep = null;
 		System.out.println("Index min: " + min);
@@ -59,7 +51,7 @@ public class IM {
 
 		int index = 1;
 
-		int maxProgress = (int) (max / stepSize);
+		int maxProgress = (int) (max / step);
 		context.getProgress().setIndeterminate(true);
 		// Adding Progress
 		context.getProgress().setMaximum(maxProgress);
@@ -106,11 +98,11 @@ public class IM {
 		// Adding score to board:
 		resultBoard.createRow(pnRep, min, precision);
 
-		String[] splitter = String.valueOf(stepSize).split("\\.");
+		String[] splitter = String.valueOf(step).split("\\.");
 		int stepLength = splitter[1].length();
 
 		while (max > min) {
-			min += stepSize;
+			min += step;
 			min = (float) ReusableMethods.get2DecimalPlaces(min, true, stepLength);
 			System.out.println("Min: " + min);
 			parameters.setNoiseThreshold(min);
@@ -190,7 +182,7 @@ public class IM {
 
 		}
 		context.getProgress().setValue(maxProgress);
-		return resultBoard;
+		return new Object[] {pn,resultBoard};
 
 	}
 	
@@ -210,4 +202,18 @@ public class IM {
 		}
 		return true;
 	}
+
+	public void setMin(float min) {
+		this.min = min;
+	}
+
+	public void setMax(float max) {
+		this.max = max;
+	}
+
+	public void setStep(float step) {
+		this.step = step;
+	}
+	
+	
 }
