@@ -1,6 +1,7 @@
 # Don't track content of these folders
 .settings/
 bin/
+# Include lib folder with its content, 
 !lib/*
 
 
