@@ -1,6 +1,8 @@
 # Don't track content of these folders
 .settings/
 bin/
+!lib/*
+
 
 
 
@@ -23,7 +25,6 @@ bin/
 *.dmg
 *.gz
 *.iso
-*.jar
 *.rar
 *.tar
 *.zip
