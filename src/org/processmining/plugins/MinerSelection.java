@@ -28,7 +28,8 @@ public class MinerSelection {
 	private ILPMiner ilp;
 	private IM im;
 	private SM splitMiner;
-	private MiningParametersIMf parameters;
+	private MiningParametersIMf parametersInductive;
+	private MatrixFilterParameter parametersSplit;
 
 	@Plugin(name = "Dialogue Chooser SM/IM", level = PluginLevel.Local, returnLabels = { "Petrinet", "Marking",
 			"ResultBoard" }, returnTypes = { Petrinet.class, Marking.class,
@@ -69,9 +70,9 @@ public class MinerSelection {
 
 				System.out.println("This is the " + Miners.Inductive_Miner + " Case");
 				im = new IM();
-				parameters = new MiningParametersIMf();
-				parameters.setNoiseThreshold((float) getMinFreq());
-				Object[] resultObjects = IMPetriNet.minePetriNet(context, log, parameters);
+				parametersInductive = new MiningParametersIMf();
+				parametersInductive.setNoiseThreshold((float) getMinFreq());
+				Object[] resultObjects = IMPetriNet.minePetriNet(context, log, parametersInductive);
 				pn = (Petrinet) resultObjects[0];
 
 				
@@ -86,11 +87,12 @@ public class MinerSelection {
 				
 				System.out.println("This is the " + Miners.Split_Miner + " Case");
 				splitMiner = new SM(dialog, log);
-				MatrixFilterParameter parameters = splitMiner.getParameters();
-				pn = SplitMinerinProMPlugin.run(context, log, parameters);
+				parametersSplit = splitMiner.getParameters();
+				pn = SplitMinerinProMPlugin.run(context, log, parametersSplit);
 				
 				// Return Result
 				returnResult[0] = pn;
+				returnResult[2] = calculateFScore(context, log, pn, Miners.Split_Miner);
 				break;
 			default :
 
@@ -123,7 +125,13 @@ public class MinerSelection {
 		
 		ResultBoard results = new ResultBoard();
 		results.createTableColumns(miner);
-		double [] precisionAndFitness;
+		double [] precisionAndFitness = {0d,0d}; // Precision & fitness
+		
+		
+		// For Another Part of Splitminer
+		LogModelDFGComparison pnf = new LogModelDFGComparison();
+		Marking marking = new Marking(pn.getPlaces()); 
+		
 		switch(miner) {
 		case Inductive_Miner:
 			results.setTitle("InductiveMiner2");
@@ -141,8 +149,8 @@ public class MinerSelection {
 				results.createRow(minFreq, precisionAndFitness[0], precisionAndFitness[1]);
 				
 				// Creating new PetriNet
-				parameters.setNoiseThreshold(minThreshold);
-				Object[] resultObjects = IMPetriNet.minePetriNet(context, log, parameters);
+				parametersInductive.setNoiseThreshold(minThreshold);
+				Object[] resultObjects = IMPetriNet.minePetriNet(context, log, parametersInductive);
 				pn = (Petrinet) resultObjects[0];
 				fScore.setPn(pn);
 				
@@ -151,11 +159,26 @@ public class MinerSelection {
 			}
 			break;
 		case Split_Miner:
-			while(maxEpsilon>minEpsilon){
+			while(maxEpsilon>=minEpsilon){
 				minEpsilon = ReusableMethods.get2DecimalPlaces(minEpsilon, true, stepLength);
 				
-				while(maxFreq > minFreq) {
+				while(maxFreq >= minFreq) {
 					minFreq  =  ReusableMethods.get2DecimalPlaces(minFreq, true, stepLength);
+					// Run Function for SplitMiner
+					parametersSplit.setSecondDoubleVariable(minEpsilon);
+					parametersSplit.setProbabilityOfRemoval(minFreq);
+					pn = SplitMinerinProMPlugin.run(context, log, parametersSplit);
+					fScore.setPn(pn);
+					
+					// Running Fscore:
+					precisionAndFitness = fScore.calcultate();
+//					pnf.generateLogFromPetrinet((UIPluginContext) context, log, pn, marking);
+//					precisionAndFitness[0] = pnf.getPrecision();
+//					precisionAndFitness[1] = pnf.getFitness();
+					
+					
+					results.createRow(minEpsilon,minFreq, precisionAndFitness[0], precisionAndFitness[1]);
+					
 					
 					minFreq+=stepIncremnet;
 				}

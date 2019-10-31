@@ -105,66 +105,66 @@ public class LogModelDFGComparison {
 				}
 				
 		 }
-		ActionMaper= new HashMap<String, Integer>();
-		 LogSize=0;
-		 chCount=0;
-		 int newVariants=0;
-		 boolean NewVariantArivalFlage=true;
-		 int SimulateLogSize=1000;
-		while (NewVariantArivalFlage) {
-			newVariants=0;
-			NewVariantArivalFlage=false;
-			PNSimulatorConfig config = new PNSimulatorConfig(SimulateLogSize,TimeUnit.MINUTES, (long) 1.0,1,MaxLength+1);
-			//PNSimulatorConfig config = new PNSimulatorConfig(SimulateLogSize);
-			SimulateLogSize=SimulateLogSize*2;
-			 log = simulator.simulate(context, petriNet, semantics, config, initialMarking);
-				for (XTrace trace : log) { // for each trace of the Model'sLog
-					 LogSize++;
-					 /// Put trace to array
-					 String[] Trace = new String[trace.size()];
-						List<String> templist = new ArrayList<String>();
-						for (XEvent event : trace) { 
-							
-							templist.add(event.getAttributes().get("concept:name").toString());
-						}
-						Trace = templist.toArray(new String[trace.size()]);
-						String tr= "";
-						for (int i =0; i < Trace.length; i++){
-							tr= tr.concat(Trace[i]+"==>");
-							if(i==0) {
-								DFRelation="Start" + ">>"+Trace[i]; 
-							}else {
-								DFRelation =Trace[i-1] + ">>"+ Trace[i];
-							}
-							if(ModelDFMapper.get(DFRelation)==null) {
-								ModelDFMapper.put(DFRelation, 1);
-							}else {
-								ModelDFMapper.put(DFRelation, ModelDFMapper.get(DFRelation)+1);
-							}
-						}
-						DFRelation=Trace[Trace.length-1] +">>"+"End";
-						if(ModelDFMapper.get(DFRelation)==null) {
-							ModelDFMapper.put(DFRelation, 1);
-						}else {
-							ModelDFMapper.put(DFRelation, ModelDFMapper.get(DFRelation)+1);
-						}
-						if (ActionMaper.get(tr)==null ){
-							ActionMaper.put(tr,1);
-							ReverseMapper.put(chCount, tr);
-							HashMaper.put(tr, chCount);
-							chCount++;
-							VariantModelog.add(trace);
-							newVariants++;
-							
-						}else{
-							ActionMaper.put(tr, ActionMaper.get(tr)+1);
-						}
-						
-				 }
-				if ((1.0*newVariants/SimulateLogSize)>0.01)
-					NewVariantArivalFlage=true;
-		}
-		 
+//		ActionMaper= new HashMap<String, Integer>();
+//		 LogSize=0;
+//		 chCount=0;
+//		 int newVariants=0;
+//		 boolean NewVariantArivalFlage=true;
+//		 int SimulateLogSize=1000;
+//		while (NewVariantArivalFlage) {
+//			newVariants=0;
+//			NewVariantArivalFlage=false;
+//			PNSimulatorConfig config = new PNSimulatorConfig(SimulateLogSize,TimeUnit.MINUTES, (long) 1.0,1,MaxLength+1);
+//			//PNSimulatorConfig config = new PNSimulatorConfig(SimulateLogSize);
+//			SimulateLogSize=SimulateLogSize*2;
+//			 log = simulator.simulate(context, petriNet, semantics, config, initialMarking);
+//				for (XTrace trace : log) { // for each trace of the Model'sLog
+//					 LogSize++;
+//					 /// Put trace to array
+//					 String[] Trace = new String[trace.size()];
+//						List<String> templist = new ArrayList<String>();
+//						for (XEvent event : trace) { 
+//							
+//							templist.add(event.getAttributes().get("concept:name").toString());
+//						}
+//						Trace = templist.toArray(new String[trace.size()]);
+//						String tr= "";
+//						for (int i =0; i < Trace.length; i++){
+//							tr= tr.concat(Trace[i]+"==>");
+//							if(i==0) {
+//								DFRelation="Start" + ">>"+Trace[i]; 
+//							}else {
+//								DFRelation =Trace[i-1] + ">>"+ Trace[i];
+//							}
+//							if(ModelDFMapper.get(DFRelation)==null) {
+//								ModelDFMapper.put(DFRelation, 1);
+//							}else {
+//								ModelDFMapper.put(DFRelation, ModelDFMapper.get(DFRelation)+1);
+//							}
+//						}
+//						DFRelation=Trace[Trace.length-1] +">>"+"End";
+//						if(ModelDFMapper.get(DFRelation)==null) {
+//							ModelDFMapper.put(DFRelation, 1);
+//						}else {
+//							ModelDFMapper.put(DFRelation, ModelDFMapper.get(DFRelation)+1);
+//						}
+//						if (ActionMaper.get(tr)==null ){
+//							ActionMaper.put(tr,1);
+//							ReverseMapper.put(chCount, tr);
+//							HashMaper.put(tr, chCount);
+//							chCount++;
+//							VariantModelog.add(trace);
+//							newVariants++;
+//							
+//						}else{
+//							ActionMaper.put(tr, ActionMaper.get(tr)+1);
+//						}
+//						
+//				 }
+//				if ((1.0*newVariants/SimulateLogSize)>0.01)
+//					NewVariantArivalFlage=true;
+//		}
+//		 
 		
         
 		

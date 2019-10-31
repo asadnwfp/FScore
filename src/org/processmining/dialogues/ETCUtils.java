@@ -255,6 +255,10 @@ public class ETCUtils {
 
 		IPNReplayAlgorithm selectedAlg = null;
 		for (IPNReplayAlgorithm algo : listAlgorithms) {
+			System.out.println("Name of Algorithm: " + algo.toString());
+			System.out.println("Algorithm Class: " + algo.getClass());
+		}
+		for (IPNReplayAlgorithm algo : listAlgorithms) {
 			if (algo.toString().contentEquals("Splitting replayer assuming at most 127 tokens in each place.")) {
 				System.out.println("Name of Algorithm: " + algo.toString());
 				System.out.println("Algorithm Class: " + algo.getClass());
