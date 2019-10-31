@@ -18,34 +18,44 @@ public class CalculateFScore {
 	private XLog log;
 	private Petrinet pn;
 	private ETCUtils utils;
+	private Miners miner;
 
-	public CalculateFScore(PluginContext context, XLog log, Petrinet pn) {
+	public CalculateFScore(PluginContext context, XLog log, Petrinet pn, Miners miner) {
 		this.context = context;
 		this.log = log;
 		this.pn = pn;
+		this.miner = miner;
 		utils = new ETCUtils(context, log, pn);
 	}
 
 	public double[] calcultate() {
-//		PNRepResult pnRep = null;
+		PNRepResult pnRep = null;
 
 		// Creating New Instances for Fitness Plugins
-//		PNLogReplayer replayer = new PNLogReplayer();
-//		LogReplayer logReplayer = new LogReplayer(replayer);
+		PNLogReplayer replayer = new PNLogReplayer();
+		LogReplayer logReplayer = new LogReplayer(replayer);
 
 		// Calculating Precision
 		utils.performETCUtils();
 		ETCResults res = utils.getRes();
 		System.out.println("Results of ETCResults: " + res.getEtcp());
 		
+		double fitness = 0.000;
 		// Calculating Fitness
-//		pnRep = utils.getPnRepResult(logReplayer);	
-//		Map<String, Object> info = pnRep.getInfo();
-//		double traceFitness = Double.parseDouble((info.get(pnRep.TRACEFITNESS)).toString());
+		switch(miner) {
+		case ILP_Miner:
+			fitness  = 1 - ((double)res.getnNonFitTraces()/(double)res.getNTraces());		
+			fitness = ReusableMethods.get2DecimalPlaces(fitness, false);
+			break;
+		case Inductive_Miner:
+			pnRep = utils.getPnRepResult(logReplayer);	
+			Map<String, Object> info = pnRep.getInfo();
+			fitness = Double.parseDouble((info.get(pnRep.TRACEFITNESS)).toString());
+			break;
+		}
 		
-		double fitness  = 1 - ((double)res.getnNonFitTraces()/(double)res.getNTraces());		
 		
-		fitness = ReusableMethods.get2DecimalPlaces(fitness, false);
+
 		double precision = ReusableMethods.get2DecimalPlaces(res.getEtcp(), false);
 		
 		System.out.println("CalculateFScore: No Fit Traces: " + res.getnNonFitTraces());

@@ -79,8 +79,8 @@ public class ETCUtils {
 
 	public void performETCUtils() {
 		marking = getMarkings();
-//		if (checkFirstRun) {
-		if (true) {
+		if (checkFirstRun) {
+//		if (true) {
 
 			// putting it know whats going on :CheckFirstRun is made true
 			con = getEvClassLogPetrinetConnection();
@@ -99,6 +99,7 @@ public class ETCUtils {
 					.getFirstConnection(InitialMarkingConnection.class, context, net);
 			marking = connection.getObjectWithRole(InitialMarkingConnection.MARKING);
 		} catch (ConnectionCannotBeObtained ex) {
+			System.out.println("ETCUtils: getMarkings: No Markings found");
 			cancel(context, "Petri Net lacks initial marking");
 			return null;
 		}
@@ -109,8 +110,8 @@ public class ETCUtils {
 		System.out.println("ETCUtils: getEvClassLogPetrinetConnection");
 		
 		// perforETCUTils making checkFirstRun default = true
-//		checkFirstRun = false;
-		checkFirstRun = true;
+		checkFirstRun = false;
+//		checkFirstRun = true;
 		
 		//Get PetriNet - Log Connection
 		EvClassLogPetrinetConnection con;

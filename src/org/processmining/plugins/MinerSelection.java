@@ -114,7 +114,7 @@ public class MinerSelection {
 		
 		String[] splitter = String.valueOf(stepIncremnet).split("\\.");
 		int stepLength = splitter[1].length();
-		CalculateFScore fScore = new CalculateFScore(context,log,pn);
+		CalculateFScore fScore = new CalculateFScore(context,log,pn, miner);
 		
 		minEpsilon = ReusableMethods.get2DecimalPlaces(minEpsilon, true, stepLength);
 		minFreq  =  ReusableMethods.get2DecimalPlaces(minFreq, true, stepLength);
@@ -149,6 +149,7 @@ public class MinerSelection {
 				results.createRow(minFreq, precisionAndFitness[0], precisionAndFitness[1]);
 				
 				// Creating new PetriNet
+				parametersInductive = new MiningParametersIMf();
 				parametersInductive.setNoiseThreshold(minThreshold);
 				Object[] resultObjects = IMPetriNet.minePetriNet(context, log, parametersInductive);
 				pn = (Petrinet) resultObjects[0];
