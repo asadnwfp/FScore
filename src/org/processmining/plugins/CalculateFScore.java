@@ -27,11 +27,11 @@ public class CalculateFScore {
 	}
 
 	public double[] calcultate() {
-		PNRepResult pnRep = null;
+//		PNRepResult pnRep = null;
 
 		// Creating New Instances for Fitness Plugins
-		PNLogReplayer replayer = new PNLogReplayer();
-		LogReplayer logReplayer = new LogReplayer(replayer);
+//		PNLogReplayer replayer = new PNLogReplayer();
+//		LogReplayer logReplayer = new LogReplayer(replayer);
 
 		// Calculating Precision
 		utils.performETCUtils();
@@ -43,11 +43,13 @@ public class CalculateFScore {
 //		Map<String, Object> info = pnRep.getInfo();
 //		double traceFitness = Double.parseDouble((info.get(pnRep.TRACEFITNESS)).toString());
 		
-		double fitness  = 1 - (res.getnNonFitTraces()/res.getNTraces());
+		double fitness  = 1 - ((double)res.getnNonFitTraces()/(double)res.getNTraces());		
 		
-		
+		fitness = ReusableMethods.get2DecimalPlaces(fitness, false);
 		double precision = ReusableMethods.get2DecimalPlaces(res.getEtcp(), false);
-
+		
+		System.out.println("CalculateFScore: No Fit Traces: " + res.getnNonFitTraces());
+		System.out.println("CalculateFScore: Total Traces: " + res.getNTraces());
 		System.out.println("CalculateFScore: TraceFitness: " + fitness);
 		System.out.println("CalculateFScore: Precision: " + precision);
 		return new double[] {precision,fitness};

@@ -79,7 +79,10 @@ public class ETCUtils {
 
 	public void performETCUtils() {
 		marking = getMarkings();
-		if (checkFirstRun) {
+//		if (checkFirstRun) {
+		if (true) {
+
+			// putting it know whats going on :CheckFirstRun is made true
 			con = getEvClassLogPetrinetConnection();
 			mapping = getTransEvClassMapping();
 		} else {
@@ -104,7 +107,11 @@ public class ETCUtils {
 
 	private EvClassLogPetrinetConnection getEvClassLogPetrinetConnection() {
 		System.out.println("ETCUtils: getEvClassLogPetrinetConnection");
-		checkFirstRun = false;
+		
+		// perforETCUTils making checkFirstRun default = true
+//		checkFirstRun = false;
+		checkFirstRun = true;
+		
 		//Get PetriNet - Log Connection
 		EvClassLogPetrinetConnection con;
 		try {
