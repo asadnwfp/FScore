@@ -229,11 +229,15 @@ public class DialogueChooser extends JPanel {
 					epsilonLabel.setVisible(true);
 					minEpsilon.setVisible(true);
 					maxEpsilon.setVisible(true);
+					stepIncrement.setVisible(false);
+					stepIncrementLabel.setVisible(false);
 				}
 				if(miner.hasFrequency()) {
 					freqLabel.setVisible(true);
 					minFreq.setVisible(true);
 					maxFreq.setVisible(true);
+					stepIncrement.setVisible(true);
+					stepIncrementLabel.setVisible(true);
 				}
 
 			}
@@ -248,6 +252,8 @@ public class DialogueChooser extends JPanel {
 		maxFreq.setVisible(false);
 		freqLabel.setVisible(false);
 		epsilonLabel.setVisible(false);
+		stepIncrement.setVisible(false);
+		stepIncrementLabel.setVisible(false);
 	}
 
 	private void createGridySpace(SlickerFactory factory, int gridy) {

@@ -13,6 +13,8 @@ import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginLevel;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.models.semantics.petrinet.Marking;
+import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMf;
+import org.processmining.plugins.InductiveMiner.plugins.IMPetriNet;
 import org.processmining.plugins.ilp.ILPMiner;
 import org.processmining.plugins.inductiveminer.IM;
 import org.processmining.plugins.parameter.MatrixFilterParameter;
@@ -26,6 +28,7 @@ public class MinerSelection {
 	private ILPMiner ilp;
 	private IM im;
 	private SM splitMiner;
+	private MiningParametersIMf parameters;
 
 	@Plugin(name = "Dialogue Chooser SM/IM", level = PluginLevel.Local, returnLabels = { "Petrinet", "Marking",
 			"ResultBoard" }, returnTypes = { Petrinet.class, Marking.class,
@@ -44,8 +47,10 @@ public class MinerSelection {
 		}
 
 		setStepIncremnet(dialog.getStepIncrement());
-		Object[] returnResult = new Object[] {null,null,null};
+		Object[] returnResult = new Object[] {null,null,null}; // PetriNet , Marking and ResultBoard
+		Petrinet pn;
 		switch (dialog.getMiner()) {
+		
 			case ILP_Miner :
 
 				System.out.println("This is the " + Miners.ILP_Miner + " Case");
@@ -56,6 +61,7 @@ public class MinerSelection {
 				// Return Result
 				returnResult[0] = ilpObjects[0];
 				returnResult[1] = ilpObjects[1];
+				returnResult[2] = calculateFScore(context, log, (Petrinet) ilpObjects[0], Miners.ILP_Miner);
 				break;
 			case Inductive_Miner :
 				setMinFreq(dialog.getMinFreq());
@@ -63,15 +69,14 @@ public class MinerSelection {
 
 				System.out.println("This is the " + Miners.Inductive_Miner + " Case");
 				im = new IM();
+				parameters = new MiningParametersIMf();
+				parameters.setNoiseThreshold((float) getMinFreq());
+				Object[] resultObjects = IMPetriNet.minePetriNet(context, log, parameters);
+				pn = (Petrinet) resultObjects[0];
 
-				// Setting values for IM
-				im.setMax((float) maxFreq);
-				im.setMin((float) minFreq);
-				im.setStep((float) stepIncremnet);
-
-				Object [] imObjects = im.mineFScore(context, log);
-				returnResult[0] = imObjects[0];
-				returnResult[2] = imObjects[1];
+				
+				returnResult[0] = pn;
+				returnResult[2] = calculateFScore(context, log, pn, Miners.Inductive_Miner);
 				break;
 			case Split_Miner :
 				setMinEpsilon(dialog.getMinEpsilon());
@@ -82,7 +87,7 @@ public class MinerSelection {
 				System.out.println("This is the " + Miners.Split_Miner + " Case");
 				splitMiner = new SM(dialog, log);
 				MatrixFilterParameter parameters = splitMiner.getParameters();
-				Petrinet pn = SplitMinerinProMPlugin.run(context, log, parameters);
+				pn = SplitMinerinProMPlugin.run(context, log, parameters);
 				
 				// Return Result
 				returnResult[0] = pn;
@@ -109,34 +114,65 @@ public class MinerSelection {
 		int stepLength = splitter[1].length();
 		CalculateFScore fScore = new CalculateFScore(context,log,pn);
 		
-		minEpsilon = (float) ReusableMethods.get2DecimalPlaces(minEpsilon, true, stepLength);
-		minFreq  = (float) ReusableMethods.get2DecimalPlaces(minFreq, true, stepLength);
+		minEpsilon = ReusableMethods.get2DecimalPlaces(minEpsilon, true, stepLength);
+		minFreq  =  ReusableMethods.get2DecimalPlaces(minFreq, true, stepLength);
 		
-		maxEpsilon  = (float) ReusableMethods.get2DecimalPlaces(maxEpsilon, true, stepLength);
-		maxFreq  = (float) ReusableMethods.get2DecimalPlaces(maxFreq, true, stepLength);
+		maxEpsilon  = ReusableMethods.get2DecimalPlaces(maxEpsilon, true, stepLength);
+		maxFreq  = ReusableMethods.get2DecimalPlaces(maxFreq, true, stepLength);
+		double min = maxFreq; // for resetting the value.
 		
 		ResultBoard results = new ResultBoard();
-		results.setTitle(miner.getMinerName());
+		results.createTableColumns(miner);
 		double [] precisionAndFitness;
 		switch(miner) {
 		case Inductive_Miner:
-			while(maxFreq>minFreq) {
-				minFreq+= stepIncremnet;
-				minFreq = (float) ReusableMethods.get2DecimalPlaces(minFreq, true, stepLength);
+			results.setTitle("InductiveMiner2");
+			while(maxFreq>=minFreq) {
+				minFreq = ReusableMethods.get2DecimalPlaces(minFreq, true, stepLength);
+				float minThreshold = (float) minFreq;
+				minThreshold = (float) ReusableMethods.get2DecimalPlaces(minThreshold, true, stepLength);
+				System.out.println("MinerSelection: Inductive MinThreshold :" + minThreshold);
+				System.out.println("MinerSelection: Inductive MaxFreq :" + maxFreq);
+				System.out.println("MinerSelection: Inductive MinFreq :" + minFreq);
+				System.out.println("MinerSelection: Inductive StepIncrement :" + stepIncremnet);
+				
+				// Generating FScore
 				precisionAndFitness = fScore.calcultate();
 				results.createRow(minFreq, precisionAndFitness[0], precisionAndFitness[1]);
-				im.getParameters().setNoiseThreshold((float) minFreq);
+				
+				// Creating new PetriNet
+				parameters.setNoiseThreshold(minThreshold);
+				Object[] resultObjects = IMPetriNet.minePetriNet(context, log, parameters);
+				pn = (Petrinet) resultObjects[0];
 				fScore.setPn(pn);
+				
+				// Incrementing minFreq
+				minFreq+= stepIncremnet;
 			}
 			break;
 		case Split_Miner:
+			while(maxEpsilon>minEpsilon){
+				minEpsilon = ReusableMethods.get2DecimalPlaces(minEpsilon, true, stepLength);
+				
+				while(maxFreq > minFreq) {
+					minFreq  =  ReusableMethods.get2DecimalPlaces(minFreq, true, stepLength);
+					
+					minFreq+=stepIncremnet;
+				}
+				minFreq = min; // reseting minFrequency to its original value.
+				minEpsilon+= stepIncremnet;
+			}
 			
+			break;
+		case ILP_Miner:
+			precisionAndFitness = fScore.calcultate();
+			results.createRow(precisionAndFitness[0], precisionAndFitness[1]);
 			break;
 		default:
 			return null;
 		}
 				
-		return null;
+		return results;
 
 
 	}

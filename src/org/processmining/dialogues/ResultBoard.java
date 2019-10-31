@@ -1,19 +1,22 @@
 package org.processmining.dialogues;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 
 import org.processmining.plugins.Miners;
 import org.processmining.plugins.petrinet.replayresult.PNRepResult;
 
 public class ResultBoard extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2567156827334529395L;
 	private JTable resultTable;
 	private DefaultTableModel dtm;
 
@@ -41,20 +44,20 @@ public class ResultBoard extends JFrame {
 		setTitle(miner.getMinerName());
 		String[] rows = new String[5];
 		String[][] cols = null;
+		TableColumnModel tcm = resultTable.getColumnModel();
 		switch (miner) {
 		case ILP_Miner:
 			rows[0] = "Index";
 			rows[1] = "Precision"; 
 			rows[2] = "fitness" ;
 			rows[3] = "f-Measure";
-			rows[4] = null;
+//			tcm.removeColumn(tcm.getColumn(4));
 			break;
 		case Inductive_Miner:
 			rows[0] = "NoiseFreq";
 			rows[1] = "Precision"; 
 			rows[2] = "fitness" ;
 			rows[3] = "f-Measure";
-			rows[4] = null;
 			break;
 		case Split_Miner:
 			rows[0] = "Epsilon";
@@ -67,6 +70,10 @@ public class ResultBoard extends JFrame {
 		}
 		dtm = new DefaultTableModel(cols, rows);
 		resultTable.setModel(dtm);
+		if (miner==Miners.ILP_Miner ||miner==Miners.Inductive_Miner){
+			tcm.removeColumn(tcm.getColumn(4));			
+		}
+		
 	}
 
 	public void sycn() {
