@@ -16,6 +16,7 @@ import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginLevel;
 import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
+import org.processmining.plugins.Miners;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMf;
 import org.processmining.plugins.InductiveMiner.plugins.IMPetriNet;
 import org.processmining.plugins.etconformance.ETCResults;
@@ -27,6 +28,7 @@ import nl.tue.astar.AStarException;
 
 public class IM {
 	private float min,max,step;
+	private MiningParametersIMf parameters;
 	
 	@Plugin(name = "Mine F-Score with Inductive Miner", level = PluginLevel.Local, returnLabels = {
 			"Petrinet","ResultBoard" }, returnTypes = { Petrinet.class, ResultBoard.class }, parameterLabels = { "Log" }, userAccessible = true)
@@ -37,10 +39,11 @@ public class IM {
 //		IMMiningDialog dialog = new IMMiningDialog(log);
 //		InteractionResult result = context.showWizard("Mine F-Score using Inductive Miner", true, true, dialog);
 		context.log("Mining...");
-		MiningParametersIMf parameters = new MiningParametersIMf();
+		parameters = new MiningParametersIMf();
 
 		// Initializing JTABLE
 		ResultBoard resultBoard = new ResultBoard();
+		resultBoard.createTableColumns(Miners.Inductive_Miner);
 
 		// Getting values from Dialogue
 		
@@ -201,6 +204,10 @@ public class IM {
 			}
 		}
 		return true;
+	}
+	
+	public MiningParametersIMf getParameters() {
+		return parameters;
 	}
 
 	public void setMin(float min) {

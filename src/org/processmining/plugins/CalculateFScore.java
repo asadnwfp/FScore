@@ -18,8 +18,6 @@ public class CalculateFScore {
 	private XLog log;
 	private Petrinet pn;
 	private ETCUtils utils;
-	private double precision;
-	private double traceFitness;
 
 	public CalculateFScore(PluginContext context, XLog log, Petrinet pn) {
 		this.context = context;
@@ -28,7 +26,7 @@ public class CalculateFScore {
 		utils = new ETCUtils(context, log, pn);
 	}
 
-	private void calcultate() {
+	public double[] calcultate() {
 		PNRepResult pnRep = null;
 
 		// Creating New Instances for Fitness Plugins
@@ -40,9 +38,15 @@ public class CalculateFScore {
 		System.out.println("Results of ETCResults: " + res.getEtcp());
 		pnRep = utils.getPnRepResult(logReplayer);
 		
+		
+		
 		Map<String, Object> info = pnRep.getInfo();
-		traceFitness = Double.parseDouble((info.get(pnRep.TRACEFITNESS)).toString());
-		precision = ReusableMethods.get2DecimalPlaces(res.getEtcp(), false);
+		double traceFitness = Double.parseDouble((info.get(pnRep.TRACEFITNESS)).toString());
+		double precision = ReusableMethods.get2DecimalPlaces(res.getEtcp(), false);
+
+		System.out.println("CalculateFScore: TraceFitness: " + traceFitness);
+		System.out.println("CalculateFScore: Precision: " + precision);
+		return new double[] {precision,traceFitness};
 	}
 
 	// Getters and Setters
@@ -62,12 +66,5 @@ public class CalculateFScore {
 		this.pn = pn;
 	}
 
-	public double getPrecision() {
-		return precision;
-	}
-
-	public double getTraceFitness() {
-		return traceFitness;
-	}
 	
 }
