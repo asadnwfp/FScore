@@ -33,20 +33,24 @@ public class CalculateFScore {
 		PNLogReplayer replayer = new PNLogReplayer();
 		LogReplayer logReplayer = new LogReplayer(replayer);
 
+		// Calculating Precision
 		utils.performETCUtils();
 		ETCResults res = utils.getRes();
 		System.out.println("Results of ETCResults: " + res.getEtcp());
-		pnRep = utils.getPnRepResult(logReplayer);
+		
+		// Calculating Fitness
+//		pnRep = utils.getPnRepResult(logReplayer);	
+//		Map<String, Object> info = pnRep.getInfo();
+//		double traceFitness = Double.parseDouble((info.get(pnRep.TRACEFITNESS)).toString());
+		
+		double fitness  = 1 - (res.getnNonFitTraces()/res.getNTraces());
 		
 		
-		
-		Map<String, Object> info = pnRep.getInfo();
-		double traceFitness = Double.parseDouble((info.get(pnRep.TRACEFITNESS)).toString());
 		double precision = ReusableMethods.get2DecimalPlaces(res.getEtcp(), false);
 
-		System.out.println("CalculateFScore: TraceFitness: " + traceFitness);
+		System.out.println("CalculateFScore: TraceFitness: " + fitness);
 		System.out.println("CalculateFScore: Precision: " + precision);
-		return new double[] {precision,traceFitness};
+		return new double[] {precision,fitness};
 	}
 
 	// Getters and Setters

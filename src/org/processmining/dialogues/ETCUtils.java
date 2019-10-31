@@ -255,11 +255,19 @@ public class ETCUtils {
 
 		IPNReplayAlgorithm selectedAlg = null;
 		for (IPNReplayAlgorithm algo : listAlgorithms) {
+			System.out.println("########## Algo ############");
 			System.out.println("Name of Algorithm: " + algo.toString());
 			System.out.println("Algorithm Class: " + algo.getClass());
+			//A* Cost-based Fitness Express with ILP (swap+replacement aware), assuming at most 32767 tokens in each place.
+			//A* Cost-based Fitness Express with ILP and Partial aware, assuming at most 32767 tokens in each place.
+			//A* Cost-based Replay with ILP with move model restriction, assuming at most 32767 tokens in each place.
+			//A* Cost-based Replay without ILP with move model restriction, assuming at most 32767 tokens in each place.
+			//ILP-based replayer assuming at most 32767 tokens in each place.
+			//Splitting replayer assuming at most 127 tokens in each place.
 		}
 		for (IPNReplayAlgorithm algo : listAlgorithms) {
-			if (algo.toString().contentEquals("Splitting replayer assuming at most 127 tokens in each place.")) {
+			System.out.println("########## Selected Algo ############");
+			if (algo.toString().contentEquals("ILP-based replayer assuming at most 32767 tokens in each place.")) {
 				System.out.println("Name of Algorithm: " + algo.toString());
 				System.out.println("Algorithm Class: " + algo.getClass());
 				selectedAlg = algo;
