@@ -8,6 +8,7 @@ import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.dialogues.DialogueChooser;
 import org.processmining.dialogues.ResultBoard;
+import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginLevel;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
@@ -21,7 +22,7 @@ import org.processmining.utils.ReusableMethods;
 
 public class MinerSelection {
 
-	private double minEpsilon, maxEpsilon, minFreq, maxFreq, stepIncremnet;
+	private double minEpsilon, maxEpsilon, minFreq, maxFreq, stepIncremnet,min,max;
 
 	@Plugin(name = "Dialogue Chooser SM/IM", level = PluginLevel.Local, returnLabels = { "Petrinet", "Marking",
 			"ResultBoard" }, returnTypes = { Petrinet.class, Marking.class,
@@ -93,33 +94,41 @@ public class MinerSelection {
 				
 		}
 
-		String max = "11";
-		String min = "22";
-		String stepSize = "3";
-
-		ResultBoard results = new ResultBoard();
-		results.setTitle("Dummy Board");
-		String[] row = { max, min, stepSize };
-		results.setRow(row);
 		
-		if (returnResult[2] == null) {
-			System.out.println("MinerSelection: ResultBoard is Null, putting dummy board");
-			returnResult[2] = results;
-			
-			// Currently we dont need it, so closing it.
-			results.dispatchEvent(new WindowEvent(results, WindowEvent.WINDOW_CLOSING));
-		}else {
-			results.dispatchEvent(new WindowEvent(results, WindowEvent.WINDOW_CLOSING));
-		}
 
 		//		return results;
 		return returnResult;
 	}
 
-	private ResultBoard calculateFScore(Petrinet pn) {
-
+	private ResultBoard calculateFScore(PluginContext context,XLog log,Petrinet pn, Miners miner) {
+		min = minEpsilon;
+		max = maxEpsilon;
+		String[] splitter = String.valueOf(stepIncremnet).split("\\.");
+		int stepLength = splitter[1].length();
+		CalculateFScore fScore = new CalculateFScore(context,log,pn);
+		min = (float) ReusableMethods.get2DecimalPlaces(min, true, stepLength);
+		
+		ResultBoard results = new ResultBoard();
+		results.setTitle(miner.getMinerName());
+		switch(miner) {
+		case Inductive_Miner:
+			
+			break;
+		case Split_Miner:
+			
+			break;
+		default:
+			return null;
+		}
+				
 		return null;
 
+
+	}
+	
+	private Object[] calcultateResultBoard(ResultBoard board) {
+		min += stepIncremnet;
+		return null;
 	}
 
 	public double getMinEpsilon() {
