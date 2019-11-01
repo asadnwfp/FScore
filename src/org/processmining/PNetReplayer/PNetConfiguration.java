@@ -42,6 +42,7 @@ public class PNetConfiguration {
 	public static final int PARAMETERS = 2;
 
 	public Object[] getConfiguration(UIPluginContext context, PetrinetGraph net, XLog log) {
+		System.out.println("PNetConfiguration: getConfiguration");
 		// init local parameter
 		EvClassLogPetrinetConnection conn = null;
 

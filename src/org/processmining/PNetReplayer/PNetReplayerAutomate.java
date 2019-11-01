@@ -25,7 +25,8 @@ public class PNetReplayerAutomate {
 		this.context = context;
 	}
 
-	public PNRepResult getPnRepResult() {
+	public PNRepResult getPNetRepResult() {
+		System.out.println("PNetReplayer: getPNetReplayer");
 		// Getting the PNetConfigurations
 		PNetConfiguration pNetConfiguration = new PNetConfiguration();
 		Object[] resultConfiguration  = pNetConfiguration.getConfiguration((UIPluginContext) context, net, log);
