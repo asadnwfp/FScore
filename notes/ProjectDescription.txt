@@ -1,0 +1,10 @@
+	Name: Process Discovery Recomendation
+	The purpose of this project is to provide discovery recomendation to the people. Based on log, it will decide which miner witch what features is best suitable for it to mine.
+	
+	Discovery: 
+		Settings: The setting of discovery will define, based on log type, weather its for ILP , Inductive or SplitMiner.
+		Along with these settings it will also define, what kind of feature is beast suitable for it. i.e Noise THreshold, Frequency and Epsilon.
+		The results will be dependent on the F-Measure.
+
+	fEATURES
+		lOGS: NO of Trace, No of Events, No of variants 
