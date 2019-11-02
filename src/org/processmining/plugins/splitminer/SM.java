@@ -27,7 +27,7 @@ public class SM {
 			log
 			);
 	}
-	SM(double minEpsilon, double maxEpsilon, double minFreq, double maxFreq, double stepIncrement, XLog log){
+	public SM(double minEpsilon, double maxEpsilon, double minFreq, double maxFreq, double stepIncrement, XLog log){
 		this.minEpsilon = minEpsilon;
 		this.maxEpsilon = maxEpsilon;
 		this.minFreq = minFreq;

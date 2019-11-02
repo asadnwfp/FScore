@@ -12,6 +12,7 @@ import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.info.XLogInfo;
 import org.deckfour.xes.info.XLogInfoFactory;
+import org.deckfour.xes.info.impl.XLogInfoImpl;
 import org.deckfour.xes.model.XLog;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.framework.connections.Connection;
@@ -28,6 +29,7 @@ import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
+import org.processmining.utils.XEventAnalysis;
 
 /**
  * 
@@ -40,6 +42,9 @@ public class PNetConfiguration {
 	public static final int MAPPING = 0;
 	public static final int ALGORITHM = 1;
 	public static final int PARAMETERS = 2;
+
+	private TransEvClassMapping mapping;
+	private boolean mappingAvailable = false;
 
 	public Object[] getConfiguration(UIPluginContext context, PetrinetGraph net, XLog log) {
 		System.out.println("PNetConfiguration: getConfiguration");
@@ -81,27 +86,84 @@ public class PNetConfiguration {
 			e.printStackTrace();
 		}
 
-		// check invisible transitions
-//		Set<Transition> unmappedTrans = new HashSet<Transition>();
-//		for (Entry<Transition, XEventClass> entry : mapping.entrySet()) {
-//			if (entry.getValue().equals(mapping.getDummyEventClass())) {
-//				if (!entry.getKey().isInvisible()) {
-//					unmappedTrans.add(entry.getKey());
-//				}
-//			}
-//		}
+		// Construct Mapping, Autonomously if Event Class matches
+		if (!mappingAvailable) {
+			mapping = constructMapping(net, log);
+			if (mapping.size() >= XEventAnalysis.getEventClassCount(log)) {
+				mappingAvailable = true;
+				checkInvisibleTransitions(mapping);
+				System.out.println("PNetConfiguration: MappingAvailable: " + mappingAvailable);
+				System.out.println("PNetConfiguration: Mapping created via constructMapping()");
+			}
+		}
 
+		// Create Mapping, Via user input
+		if (!mappingAvailable) {
+			// Creating Mapping via Asking User
+			if (!createMapping(context, conn, log, net)) {
+				return null; // Mapping not created, finishing plugin
+			}
+		}
+
+		// for Debug Purpose, checking no. of Mapping Transitions.
+		System.out.println("PNetConfiguration: Count of Mapping Size:" + mapping.size());
+		
 		// Here is the finalResultStatement
 //		return new Object[] { mapping, ((PNAlgorithmStep) replaySteps[0]).getAlgorithm(),
 //				paramProvider.constructReplayParameter(replaySteps[1]) };
 		return null;
 	}
-	
-	// Method Provided by Reza for Mapping of Logs
-	private static TransEvClassMapping constructMapping(PetrinetGraph net, XLog log, XEventClass dummyEvClass,
-			XEventClassifier eventClassifier) {
-		TransEvClassMapping mapping = new TransEvClassMapping(eventClassifier, dummyEvClass);
 
+	private boolean createMapping(UIPluginContext context, EvClassLogPetrinetConnection conn, XLog log,
+			PetrinetGraph net) {
+		System.out.println("PNetConfiguration: createMapping()");
+		mappingAvailable = true;
+		try {
+			// connection is found, no need for mapping step
+			// connection is not found, another plugin to create such connection
+			// is automatically
+			// executed
+			conn = context.getConnectionManager().getFirstConnection(EvClassLogPetrinetConnection.class, context, net,
+					log);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(new JPanel(), "No mapping can be constructed between the net and the log");
+			mappingAvailable = false;
+			return mappingAvailable;
+		}
+
+		// init gui for each step
+		mapping = (TransEvClassMapping) conn
+				.getObjectWithRole(EvClassLogPetrinetConnection.TRANS2EVCLASSMAPPING);
+
+		checkInvisibleTransitions(mapping);
+
+		System.out.println("PNetConfiguration: Mapping created via createMapping()");
+		return mappingAvailable; // Mapping Created
+	}
+
+	private void checkInvisibleTransitions(TransEvClassMapping mapping) {
+		// TransEvClassMapping mapping = constructMapping(net, log);
+		// check invisible transitions
+		Set<Transition> unmappedTrans = new HashSet<Transition>();
+		for (Entry<Transition, XEventClass> entry : mapping.entrySet()) {
+			if (entry.getValue().equals(mapping.getDummyEventClass())) {
+				if (!entry.getKey().isInvisible()) {
+					unmappedTrans.add(entry.getKey());
+				}
+			}
+		}
+	}
+
+	// Method Provided by Reza for Mapping of Logs
+	private TransEvClassMapping constructMapping(PetrinetGraph net, XLog log) {
+		System.out.println("PNetConfiguration: constructMapping()");
+		// LogAnalysis
+		XEventAnalysis.getAnalysis(log);
+
+		XEventClass dummyEvClass = new XEventClass("Dummy", -1);
+		XEventClassifier eventClassifier = XLogInfoImpl.NAME_CLASSIFIER;
+
+		mapping = new TransEvClassMapping(eventClassifier, dummyEvClass);
 		XLogInfo summary = XLogInfoFactory.createLogInfo(log, eventClassifier);
 
 		for (Transition t : net.getTransitions()) {
@@ -110,7 +172,7 @@ public class PNetConfiguration {
 			for (XEventClass evClass : summary.getEventClasses().getClasses()) {
 				String id = evClass.getId();
 				String label = t.getLabel();
-												
+
 				if (label.equals(id)) {
 					mapping.put(t, evClass);
 					mapped = true;
@@ -120,9 +182,9 @@ public class PNetConfiguration {
 		}
 		System.out.println("mapping");
 		System.out.println(mapping);
- 
+
 		return mapping;
-		}
+	}
 
 	private boolean createMarking(UIPluginContext context, PetrinetGraph net, Class<? extends Connection> classType) {
 		boolean result = false;
