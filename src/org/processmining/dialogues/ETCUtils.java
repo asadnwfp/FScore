@@ -273,8 +273,9 @@ public class ETCUtils {
 			//ILP-based replayer assuming at most 32767 tokens in each place.
 			//Splitting replayer assuming at most 127 tokens in each place.
 		}
+		System.out.println("########## Selected Algo ############");
 		for (IPNReplayAlgorithm algo : listAlgorithms) {
-			System.out.println("########## Selected Algo ############");
+			
 			if (algo.toString().contentEquals("ILP-based replayer assuming at most 32767 tokens in each place.")) {
 				System.out.println("Name of Algorithm: " + algo.toString());
 				System.out.println("Algorithm Class: " + algo.getClass());

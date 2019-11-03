@@ -32,6 +32,7 @@ import org.processmining.models.connections.petrinets.behavioral.InitialMarkingC
 import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.models.semantics.petrinet.Marking;
+import org.processmining.plugins.astar.petrinet.PetrinetReplayerWithILP;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
 import org.processmining.plugins.petrinet.replayer.algorithms.IPNReplayAlgorithm;
 import org.processmining.plugins.petrinet.replayer.annotations.PNReplayAlgorithm;
@@ -115,10 +116,11 @@ public class PNetConfiguration {
 		}
 		
 		// create Algorithem
-		if(algoAvailable) {
+		if(!algoAvailable) {
 			selectedAlg = getAlgo(context, net, log);
 		}
 
+		System.out.println("PNetConfiguration: SelectedAlgo: " + selectedAlg.toString());
 		// for Debug Purpose, checking no. of Mapping Transitions.
 		System.out.println("PNetConfiguration: Count of Mapping Size:" + mapping.size());
 		
@@ -201,7 +203,7 @@ public class PNetConfiguration {
 	}
 	
 	public IPNReplayAlgorithm getAlgo(PluginContext context, PetrinetGraph net, XLog log) {
-		System.out.println("ETCUtils: getAlgo");
+		System.out.println("PNetConfiguration: getAlgo()");
 		algoAvailable = true;
 
 		IPNReplayAlgorithm[] listAlgorithms= getAvailabelAlgorithms(context,net,log);
@@ -217,14 +219,19 @@ public class PNetConfiguration {
 			//ILP-based replayer assuming at most 32767 tokens in each place.
 			//Splitting replayer assuming at most 127 tokens in each place.
 		}
+		System.out.println("########## Selected Algo ############");
 		for (IPNReplayAlgorithm algo : listAlgorithms) {
-			System.out.println("########## Selected Algo ############");
 			if (algo.toString().contentEquals("ILP-based replayer assuming at most 32767 tokens in each place.")) {
 				System.out.println("Name of Algorithm: " + algo.toString());
 				System.out.println("Algorithm Class: " + algo.getClass());
 				selectedAlg = algo;
+				System.out.println("Algo is Instance of PetrinetReplayerWithILP: " + (algo instanceof PetrinetReplayerWithILP) );
 			}
 		}
+		
+		PetrinetReplayerWithILP algoPetrinetReplayerWithILP= new PetrinetReplayerWithILP();
+		System.out.println("Is Request without parameter Satisfied: " + algoPetrinetReplayerWithILP.isReqWOParameterSatisfied(context, net, log, mapping) );
+		
 		return selectedAlg;
 	}
 	
