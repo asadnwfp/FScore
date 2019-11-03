@@ -9,10 +9,15 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.swing.BoxLayout;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
+import org.apache.tools.ant.taskdefs.Sleep;
 import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.info.XLogInfo;
@@ -56,21 +61,70 @@ public class PNetConfiguration {
 
 	private TransEvClassMapping mapping;
 	private boolean mappingAvailable = false;
-	
+
 	// Algorithm
 	private IPNReplayAlgorithm selectedAlg;
 	private boolean algoAvailable = false;
-	
+
 	// Parameters CostBasedCompleteParam:
-	private IPNReplayParamProvider selectedParam;
+	private IPNReplayParameter selectedParam;
 	private boolean paramAvailable = false;
-	
-	
+
 	public Object[] getConfiguration(UIPluginContext context, PetrinetGraph net, XLog log) {
 		System.out.println("PNetConfiguration: getConfiguration");
 		// init local parameter
 		EvClassLogPetrinetConnection conn = null;
 
+		// Check Initial and Final Markings
+		checkMarkings(context, net);
+
+		// Construct Mapping, Autonomously if Event Class matches
+		if (!mappingAvailable) {
+			mapping = constructMapping(net, log);
+			if (mapping.size() >= XEventAnalysis.getEventClassCount(log)) {
+				mappingAvailable = true;
+				checkInvisibleTransitions(mapping);
+				System.out.println("PNetConfiguration: MappingAvailable: " + mappingAvailable);
+				System.out.println("PNetConfiguration: Mapping created via constructMapping()");
+			}
+		}
+
+		// Create Mapping, Via user input
+		if (!mappingAvailable) {
+			// Creating Mapping via Asking User
+			if (!createMapping(context, conn, log, net)) {
+				return null; // Mapping not created, finishing plugin
+			}
+		}
+
+		// create Algorithm
+		if (!algoAvailable) {
+			selectedAlg = getAlgo(context, net, log);
+		}
+
+		// Create Params:// Requesting Parameters
+		if (!paramAvailable) {
+			PNetParameters pNetParam = new PNetParameters(net, log);
+			selectedParam = pNetParam.createParameters(selectedParam);
+
+			// Makking paramAvailable true for this Object.
+			paramAvailable = true;
+			
+			System.out.println("Param Class: " + selectedParam.getClass().toString());
+			boolean satisfaction = selectedAlg.isAllReqSatisfied(context, net, log, mapping, selectedParam);
+			System.out.println("Algo Satisfied with param: " + satisfaction);
+		}
+
+		System.out.println("PNetConfiguration: SelectedAlgo: " + selectedAlg.toString());
+		// for Debug Purpose, checking no. of Mapping Transitions.
+		System.out.println("PNetConfiguration: Count of Mapping Size:" + mapping.size());
+
+		// Here is the finalResultStatement
+		return new Object[] { mapping, selectedAlg, selectedParam };
+
+	}
+
+	private void checkMarkings(UIPluginContext context, PetrinetGraph net) {
 		// check existence of initial marking
 		try {
 			InitialMarkingConnection initCon = context.getConnectionManager()
@@ -105,43 +159,6 @@ public class PNetConfiguration {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		// Construct Mapping, Autonomously if Event Class matches
-		if (!mappingAvailable) {
-			mapping = constructMapping(net, log);
-			if (mapping.size() >= XEventAnalysis.getEventClassCount(log)) {
-				mappingAvailable = true;
-				checkInvisibleTransitions(mapping);
-				System.out.println("PNetConfiguration: MappingAvailable: " + mappingAvailable);
-				System.out.println("PNetConfiguration: Mapping created via constructMapping()");
-			}
-		}
-
-		// Create Mapping, Via user input
-		if (!mappingAvailable) {
-			// Creating Mapping via Asking User
-			if (!createMapping(context, conn, log, net)) {
-				return null; // Mapping not created, finishing plugin
-			}
-		}
-		
-		// create Algorithm
-		if(!algoAvailable) {
-			selectedAlg = getAlgo(context, net, log);
-		}
-		
-		// Create Params:// Requesting Parameters
-		if(!paramAvailable) {
-		selectedParam = getParamProvider(context,net,log);
-		}
-
-		System.out.println("PNetConfiguration: SelectedAlgo: " + selectedAlg.toString());
-		// for Debug Purpose, checking no. of Mapping Transitions.
-		System.out.println("PNetConfiguration: Count of Mapping Size:" + mapping.size());
-		
-		// Here is the finalResultStatement
-		return new Object[] { mapping, selectedAlg,selectedParam };
-
 	}
 
 	private boolean createMapping(UIPluginContext context, EvClassLogPetrinetConnection conn, XLog log,
@@ -162,8 +179,7 @@ public class PNetConfiguration {
 		}
 
 		// init gui for each step
-		mapping = (TransEvClassMapping) conn
-				.getObjectWithRole(EvClassLogPetrinetConnection.TRANS2EVCLASSMAPPING);
+		mapping = (TransEvClassMapping) conn.getObjectWithRole(EvClassLogPetrinetConnection.TRANS2EVCLASSMAPPING);
 
 		checkInvisibleTransitions(mapping);
 
@@ -182,6 +198,27 @@ public class PNetConfiguration {
 				}
 			}
 		}
+		if (!unmappedTrans.isEmpty()) {
+			JList list = new JList(unmappedTrans.toArray());
+			JPanel panel = new JPanel();
+			BoxLayout layout = new BoxLayout(panel, BoxLayout.Y_AXIS);
+			panel.setLayout(layout);
+			panel.add(new JLabel("The following transitions are not mapped to any event class:"));
+
+			JScrollPane sp = new JScrollPane(list);
+			panel.add(sp);
+			panel.add(new JLabel("Do you want to consider these transitions as invisible (unlogged activities)?"));
+
+			Object[] options = { "Yes, set them to invisible", "No, keep them as they are" };
+
+			if (0 == JOptionPane.showOptionDialog(null, panel, "Configure transition visibility",
+					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0])) {
+				for (Transition t : unmappedTrans) {
+					t.setInvisible(true);
+				}
+			}
+		}
+
 	}
 
 	// Method Provided by Reza for Mapping of Logs
@@ -215,23 +252,27 @@ public class PNetConfiguration {
 
 		return mapping;
 	}
-	
+
 	public IPNReplayAlgorithm getAlgo(PluginContext context, PetrinetGraph net, XLog log) {
 		System.out.println("PNetConfiguration: getAlgo()");
 		algoAvailable = true;
 
-		IPNReplayAlgorithm[] listAlgorithms= getAvailabelAlgorithms(context,net,log);
+		IPNReplayAlgorithm[] listAlgorithms = getAvailabelAlgorithms(context, net, log);
 		selectedAlg = null;
 		for (IPNReplayAlgorithm algo : listAlgorithms) {
 			System.out.println("########## Algo ############");
 			System.out.println("Name of Algorithm: " + algo.toString());
 			System.out.println("Algorithm Class: " + algo.getClass());
-			//A* Cost-based Fitness Express with ILP (swap+replacement aware), assuming at most 32767 tokens in each place.
-			//A* Cost-based Fitness Express with ILP and Partial aware, assuming at most 32767 tokens in each place.
-			//A* Cost-based Replay with ILP with move model restriction, assuming at most 32767 tokens in each place.
-			//A* Cost-based Replay without ILP with move model restriction, assuming at most 32767 tokens in each place.
-			//ILP-based replayer assuming at most 32767 tokens in each place.
-			//Splitting replayer assuming at most 127 tokens in each place.
+			// A* Cost-based Fitness Express with ILP (swap+replacement aware), assuming at
+			// most 32767 tokens in each place.
+			// A* Cost-based Fitness Express with ILP and Partial aware, assuming at most
+			// 32767 tokens in each place.
+			// A* Cost-based Replay with ILP with move model restriction, assuming at most
+			// 32767 tokens in each place.
+			// A* Cost-based Replay without ILP with move model restriction, assuming at
+			// most 32767 tokens in each place.
+			// ILP-based replayer assuming at most 32767 tokens in each place.
+			// Splitting replayer assuming at most 127 tokens in each place.
 		}
 		System.out.println("########## Selected Algo ############");
 		for (IPNReplayAlgorithm algo : listAlgorithms) {
@@ -239,16 +280,18 @@ public class PNetConfiguration {
 				System.out.println("Name of Algorithm: " + algo.toString());
 				System.out.println("Algorithm Class: " + algo.getClass());
 				selectedAlg = algo;
-				System.out.println("Algo is Instance of PetrinetReplayerWithILP: " + (algo instanceof PetrinetReplayerWithILP) );
+				System.out.println(
+						"Algo is Instance of PetrinetReplayerWithILP: " + (algo instanceof PetrinetReplayerWithILP));
 			}
 		}
-		
-		PetrinetReplayerWithILP algoPetrinetReplayerWithILP= new PetrinetReplayerWithILP();
-		System.out.println("Is Request without parameter Satisfied: " + algoPetrinetReplayerWithILP.isReqWOParameterSatisfied(context, net, log, mapping) );
-				
+
+		PetrinetReplayerWithILP algoPetrinetReplayerWithILP = new PetrinetReplayerWithILP();
+		System.out.println("Is Request without parameter Satisfied: "
+				+ algoPetrinetReplayerWithILP.isReqWOParameterSatisfied(context, net, log, mapping));
+
 		return selectedAlg;
 	}
-	
+
 	private IPNReplayAlgorithm[] getAvailabelAlgorithms(PluginContext context, PetrinetGraph net, XLog log) {
 		// get all algorithms from the framework
 		Set<Class<?>> coverageEstimatorClasses = context.getPluginManager()
@@ -281,20 +324,26 @@ public class PNetConfiguration {
 		}
 		return availAlgorithms;
 	}
-	
-	private IPNReplayParamProvider getParamProvider(PluginContext context, PetrinetGraph net, XLog log) {
-		// Making paramAvailibility true
-		paramAvailable = true;
-//		IPNReplayParamProvider paramProvider = selectedAlg.constructParamProvider(context, net,
-//				log, mapping) ;
-//		JComponent paramComponent = paramProvider.constructUI();
-		
-		selectedParam = (IPNReplayParamProvider) new CostBasedCompleteParam(XEventAnalysis.getEventClassCollection(log),null,net.getTransitions());
-		System.out.println("Param Class: " + selectedParam.getClass().toString());
-//		IPNReplayParameter algParameters = paramProvider.constructReplayParameter(paramComponent);
-		
-		return selectedParam;
-	}
+
+//	private IPNReplayParameter createParameters(PluginContext context, PetrinetGraph net, XLog log) {
+//		System.out.println("PNetConfiguration: createParameters()");
+//		// Making paramAvailibility true
+//		paramAvailable = true;
+//
+////		IPNReplayParamProvider paramProvider = selectedAlg.constructParamProvider(context, net,
+////				log, mapping) ;
+////		JComponent paramComponent = paramProvider.constructUI();
+////		IPNReplayParameter algParameters = paramProvider.constructReplayParameter(paramComponent);
+//
+//		// Creating Params
+//		XEventClass dummyEvClass = new XEventClass("Dummy", -1);
+//		selectedParam = new CostBasedCompleteParam(XEventAnalysis.getEventClassCollection(log), dummyEvClass,
+//				net.getTransitions(), 1, 1);
+//		System.out.println("Param Class: " + selectedParam.getClass().toString());
+//		boolean satisfaction = selectedAlg.isAllReqSatisfied(context, net, log, mapping, selectedParam);
+//		System.out.println("Algo Satisfied with param: " + satisfaction);
+//		return selectedParam;
+//	}
 
 	private boolean createMarking(UIPluginContext context, PetrinetGraph net, Class<? extends Connection> classType) {
 		boolean result = false;

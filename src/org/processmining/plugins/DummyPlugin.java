@@ -1,5 +1,7 @@
 package org.processmining.plugins;
 
+import java.util.Map;
+
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -7,6 +9,7 @@ import org.deckfour.xes.model.XLog;
 import org.processmining.PNetReplayer.PNetReplayerAutomate;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
+import org.processmining.framework.connections.ConnectionCannotBeObtained;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginLevel;
 import org.processmining.framework.plugin.annotations.PluginVariant;
@@ -16,8 +19,11 @@ import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMf;
 import org.processmining.plugins.InductiveMiner.plugins.IMPetriNet;
 import org.processmining.plugins.inductiveminer.IM;
 import org.processmining.plugins.parameter.MatrixFilterParameter;
+import org.processmining.plugins.petrinet.replayresult.PNRepResult;
 import org.processmining.plugins.splitminer.SM;
 import org.processmining.plugins.splitminer.SplitMinerinProMPlugin;
+
+import nl.tue.astar.AStarException;
 
 public class DummyPlugin {
 	private boolean inductive = false;
@@ -26,7 +32,7 @@ public class DummyPlugin {
 			Petrinet.class }, parameterLabels = { "Log" }, userAccessible = true)
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "Saad Ahmed", email = "saad.ahmed@rwth-aachen.de")
 	@PluginVariant(variantLabel = "Mine a Process Tree, dialog", requiredParameterLabels = { 0 })
-	public Object[] dummyPlugin(UIPluginContext context, XLog log) {
+	public Object[] dummyPlugin(UIPluginContext context, XLog log) throws ConnectionCannotBeObtained, AStarException {
 		System.out.println("DummyPlugin: Start");
 
 		if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(new JPanel(),
@@ -45,7 +51,10 @@ public class DummyPlugin {
 		}
 
 		PNetReplayerAutomate pNetReplayer = new PNetReplayerAutomate(context, net, log);
-		pNetReplayer.getPNetRepResult();
+		PNRepResult pnRepResult = pNetReplayer.getPNetRepResult();
+		Map<String, Object> info = pnRepResult.getInfo();
+		System.out.println("TraceFitness: " + info.get(PNRepResult.TRACEFITNESS));
+		
 
 		System.out.println("DummyPlugin: End");
 		context.getFutureResult(0).cancel(true);
@@ -66,7 +75,7 @@ public class DummyPlugin {
 	private Petrinet createPetrinetWithInductiveMiner(UIPluginContext context, XLog log) {
 		// Creating Petrinet with Inductive Miner
 		MiningParametersIMf parametersInductive = new MiningParametersIMf();
-		parametersInductive.setNoiseThreshold(0.2f);
+		parametersInductive.setNoiseThreshold(0.8f);
 		Object[] resultObjects = IMPetriNet.minePetriNet(context, log, parametersInductive);
 		Petrinet net = (Petrinet) resultObjects[0];
 		return net;
