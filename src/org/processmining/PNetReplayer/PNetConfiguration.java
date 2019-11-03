@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -35,6 +36,9 @@ import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.plugins.astar.petrinet.PetrinetReplayerWithILP;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
 import org.processmining.plugins.petrinet.replayer.algorithms.IPNReplayAlgorithm;
+import org.processmining.plugins.petrinet.replayer.algorithms.IPNReplayParamProvider;
+import org.processmining.plugins.petrinet.replayer.algorithms.IPNReplayParameter;
+import org.processmining.plugins.petrinet.replayer.algorithms.costbasedcomplete.CostBasedCompleteParam;
 import org.processmining.plugins.petrinet.replayer.annotations.PNReplayAlgorithm;
 import org.processmining.utils.XEventAnalysis;
 
@@ -56,6 +60,12 @@ public class PNetConfiguration {
 	// Algorithm
 	private IPNReplayAlgorithm selectedAlg;
 	private boolean algoAvailable = false;
+	
+	// Parameters CostBasedCompleteParam:
+	private IPNReplayParamProvider selectedParam;
+	private boolean paramAvailable = false;
+	
+	
 	public Object[] getConfiguration(UIPluginContext context, PetrinetGraph net, XLog log) {
 		System.out.println("PNetConfiguration: getConfiguration");
 		// init local parameter
@@ -115,9 +125,14 @@ public class PNetConfiguration {
 			}
 		}
 		
-		// create Algorithem
+		// create Algorithm
 		if(!algoAvailable) {
 			selectedAlg = getAlgo(context, net, log);
+		}
+		
+		// Create Params:// Requesting Parameters
+		if(!paramAvailable) {
+		selectedParam = getParamProvider(context,net,log);
 		}
 
 		System.out.println("PNetConfiguration: SelectedAlgo: " + selectedAlg.toString());
@@ -125,9 +140,8 @@ public class PNetConfiguration {
 		System.out.println("PNetConfiguration: Count of Mapping Size:" + mapping.size());
 		
 		// Here is the finalResultStatement
-//		return new Object[] { mapping, ((PNAlgorithmStep) replaySteps[0]).getAlgorithm(),
-//				paramProvider.constructReplayParameter(replaySteps[1]) };
-		return null;
+		return new Object[] { mapping, selectedAlg,selectedParam };
+
 	}
 
 	private boolean createMapping(UIPluginContext context, EvClassLogPetrinetConnection conn, XLog log,
@@ -231,7 +245,7 @@ public class PNetConfiguration {
 		
 		PetrinetReplayerWithILP algoPetrinetReplayerWithILP= new PetrinetReplayerWithILP();
 		System.out.println("Is Request without parameter Satisfied: " + algoPetrinetReplayerWithILP.isReqWOParameterSatisfied(context, net, log, mapping) );
-		
+				
 		return selectedAlg;
 	}
 	
@@ -266,6 +280,20 @@ public class PNetConfiguration {
 
 		}
 		return availAlgorithms;
+	}
+	
+	private IPNReplayParamProvider getParamProvider(PluginContext context, PetrinetGraph net, XLog log) {
+		// Making paramAvailibility true
+		paramAvailable = true;
+//		IPNReplayParamProvider paramProvider = selectedAlg.constructParamProvider(context, net,
+//				log, mapping) ;
+//		JComponent paramComponent = paramProvider.constructUI();
+		
+		selectedParam = (IPNReplayParamProvider) new CostBasedCompleteParam(XEventAnalysis.getEventClassCollection(log),null,net.getTransitions());
+		System.out.println("Param Class: " + selectedParam.getClass().toString());
+//		IPNReplayParameter algParameters = paramProvider.constructReplayParameter(paramComponent);
+		
+		return selectedParam;
 	}
 
 	private boolean createMarking(UIPluginContext context, PetrinetGraph net, Class<? extends Connection> classType) {
