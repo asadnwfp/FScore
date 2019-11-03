@@ -43,10 +43,6 @@ public class ETConformanceAutomation {
 		return sett;
 	}
 
-	public Petrinet getNet() {
-		return net;
-	}
-
 	public void setNet(Petrinet net) {
 		this.net = net;
 	}

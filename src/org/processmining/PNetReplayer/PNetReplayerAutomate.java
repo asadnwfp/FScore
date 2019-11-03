@@ -42,7 +42,7 @@ public class PNetReplayerAutomate {
 		PNetConfiguration pNetConfiguration = new PNetConfiguration();
 		Object[] resultConfiguration = pNetConfiguration.getConfiguration((UIPluginContext) context, net, log);
 		context.log("replay is performed. All parameters are set.");
-		context.getConnectionManager().getFirstConnection(EvClassLogPetrinetConnection.class, context, net, log);
+//		context.getConnectionManager().getFirstConnection(EvClassLogPetrinetConnection.class, context, net, log);
 
 		// get all parameters
 		IPNReplayAlgorithm selectedAlg = (IPNReplayAlgorithm) resultConfiguration[PNetConfiguration.ALGORITHM];
@@ -71,5 +71,12 @@ public class PNetReplayerAutomate {
 				+ XConceptExtension.instance().extractName(log) + ", and " + net.getLabel(), net, log, mapping,
 				selectedAlg, parameters, replayRes));
 	}
+
+	public void setNet(Petrinet net) {
+		this.net = net;
+	}
+	
+	
+	
 
 }

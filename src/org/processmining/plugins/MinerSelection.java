@@ -8,6 +8,7 @@ import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.dialogues.DialogueChooser;
 import org.processmining.dialogues.ResultBoard;
+import org.processmining.framework.connections.ConnectionCannotBeObtained;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginLevel;
@@ -21,6 +22,8 @@ import org.processmining.plugins.parameter.MatrixFilterParameter;
 import org.processmining.plugins.splitminer.SM;
 import org.processmining.plugins.splitminer.SplitMinerinProMPlugin;
 import org.processmining.utils.ReusableMethods;
+
+import nl.tue.astar.AStarException;
 
 public class MinerSelection {
 
@@ -110,27 +113,20 @@ public class MinerSelection {
 		return returnResult;
 	}
 
-	private ResultBoard calculateFScore(PluginContext context,XLog log,Petrinet pn, Miners miner) {
+	private ResultBoard calculateFScore(PluginContext context,XLog log,Petrinet pn, Miners miner) throws ConnectionCannotBeObtained, AStarException {
 		
 		String[] splitter = String.valueOf(stepIncremnet).split("\\.");
 		int stepLength = splitter[1].length();
-		CalculateFScore fScore = new CalculateFScore(context,log,pn, miner);
+		getDialogueSettings(stepLength);
 		
-		minEpsilon = ReusableMethods.get2DecimalPlaces(minEpsilon, true, stepLength);
-		minFreq  =  ReusableMethods.get2DecimalPlaces(minFreq, true, stepLength);
+		CalculateFScore fScore = new CalculateFScore(context,log,pn);
 		
-		maxEpsilon  = ReusableMethods.get2DecimalPlaces(maxEpsilon, true, stepLength);
-		maxFreq  = ReusableMethods.get2DecimalPlaces(maxFreq, true, stepLength);
-		double min = maxFreq; // for resetting the value.
+		double min = minFreq; // for resetting the value.
 		
 		ResultBoard results = new ResultBoard();
 		results.createTableColumns(miner);
 		double [] precisionAndFitness = {0d,0d}; // Precision & fitness
 		
-		
-		// For Another Part of Splitminer
-		LogModelDFGComparison pnf = new LogModelDFGComparison();
-		Marking marking = new Marking(pn.getPlaces()); 
 		
 		switch(miner) {
 		case Inductive_Miner:
@@ -183,6 +179,9 @@ public class MinerSelection {
 					
 					minFreq+=stepIncremnet;
 				}
+				/**
+				 * This is required, cz, the min value will be changed in the inner loop,
+				 */
 				minFreq = min; // reseting minFrequency to its original value.
 				minEpsilon+= stepIncremnet;
 			}
@@ -199,6 +198,14 @@ public class MinerSelection {
 		return results;
 
 
+	}
+
+	private void getDialogueSettings(int stepLength) {
+		minEpsilon = ReusableMethods.get2DecimalPlaces(minEpsilon, true, stepLength);
+		minFreq  =  ReusableMethods.get2DecimalPlaces(minFreq, true, stepLength);
+		
+		maxEpsilon  = ReusableMethods.get2DecimalPlaces(maxEpsilon, true, stepLength);
+		maxFreq  = ReusableMethods.get2DecimalPlaces(maxFreq, true, stepLength);
 	}
 	
 	public double getMinEpsilon() {

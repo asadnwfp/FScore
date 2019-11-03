@@ -12,6 +12,7 @@ public class ReusableMethods {
 	}
 	
 	public static void nameAndClassOfObjects(Object[] objects ) {
+		System.out.println("ReusableMethods: nameAndClassOfObjects()");
 			for(Object object : objects) {
 				System.out.println("Object Class: " + object.getClass());
 				System.out.println("Object String: " + object.toString());
