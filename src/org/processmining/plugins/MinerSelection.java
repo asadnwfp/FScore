@@ -17,6 +17,7 @@ import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMf;
 import org.processmining.plugins.InductiveMiner.plugins.IMPetriNet;
 import org.processmining.plugins.ilp.ILPMiner;
+import org.processmining.plugins.ilp.ILPMinerAutomation;
 import org.processmining.plugins.inductiveminer.IM;
 import org.processmining.plugins.parameter.MatrixFilterParameter;
 import org.processmining.plugins.splitminer.SM;
@@ -58,8 +59,11 @@ public class MinerSelection {
 			case ILP_Miner :
 
 				System.out.println("This is the " + Miners.ILP_Miner + " Case");
-				ilp = new ILPMiner();
-				Object[] ilpObjects = ilp.doILPMining(context, log);
+				ILPMinerAutomation ilpMiner = new ILPMinerAutomation(context, log);
+				Object[] ilpObjects = ilpMiner.mineLogwithILP();
+//				
+//				ilp = new ILPMiner();
+//				Object[] ilpObjects = ilp.doILPMining(context, log);
 				ReusableMethods.nameAndClassOfObjects(ilpObjects);
 				
 				// Return Result
@@ -130,7 +134,6 @@ public class MinerSelection {
 		
 		switch(miner) {
 		case Inductive_Miner:
-			results.setTitle("InductiveMiner2");
 			while(maxFreq>=minFreq) {
 				minFreq = ReusableMethods.get2DecimalPlaces(minFreq, true, stepLength);
 				float minThreshold = (float) minFreq;
