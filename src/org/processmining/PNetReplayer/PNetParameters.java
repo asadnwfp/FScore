@@ -6,19 +6,30 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.swing.table.DefaultTableModel;
 
 import org.deckfour.xes.classification.XEventClass;
+import org.deckfour.xes.classification.XEventClasses;
+import org.deckfour.xes.classification.XEventClassifier;
+import org.deckfour.xes.info.XLogInfo;
+import org.deckfour.xes.info.XLogInfoFactory;
 import org.deckfour.xes.model.XLog;
+import org.processmining.framework.connections.ConnectionCannotBeObtained;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.util.ui.widgets.ProMTable;
+import org.processmining.models.connections.petrinets.behavioral.FinalMarkingConnection;
+import org.processmining.models.connections.petrinets.behavioral.InitialMarkingConnection;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
+import org.processmining.models.semantics.petrinet.Marking;
+import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
 import org.processmining.plugins.petrinet.replayer.algorithms.IPNReplayParameter;
 import org.processmining.plugins.petrinet.replayer.algorithms.costbasedcomplete.CostBasedCompleteParam;
 import org.processmining.utils.XEventAnalysis;
@@ -33,8 +44,10 @@ import org.processmining.utils.XEventAnalysis;
  */
 public class PNetParameters {
 
+	private PluginContext context;
 	private PetrinetGraph net;
 	private XLog log;
+	private TransEvClassMapping mapping;
 
 	private final int limExpInstances = 2000;
 	// default value
@@ -47,31 +60,47 @@ public class PNetParameters {
 	private Collection<Transition> transCol;
 	private Collection<XEventClass> evClassCol;
 
-	public PNetParameters( PetrinetGraph net, XLog log) {
+	// precalculated initial and final markings
+	protected Marking initMarking;
+	protected Marking[] finalMarkings;
+
+	public PNetParameters(PluginContext context, PetrinetGraph net, XLog log, TransEvClassMapping mapping) {
 		this.net = net;
 		this.log = log;
+		this.context = context;
+		this.mapping = mapping;
 		calculatedCost();
 	}
 
 	private void calculatedCost() {
+		// get initial marking
+		initMarking = getInitialMarking(context, net);
+		// get final markings
+		finalMarkings = getFinalMarkings(context, net, initMarking);
 		transCol = net.getTransitions();
-		evClassCol = XEventAnalysis.getEventClassCollection(log);
-		
+		// populate event classes
+		XEventClassifier classifier = mapping.getEventClassifier();
+		XLogInfo summary = XLogInfoFactory.createLogInfo(log, classifier);
+		XEventClasses eventClassesName = summary.getEventClasses();
+		evClassCol = new HashSet<XEventClass>(eventClassesName.getClasses());
+		evClassCol.add(mapping.getDummyEventClass());
+
 		populateMoveOnModelPanel(transCol);
 		populateMoveOnLogPanel(evClassCol);
 		populateMoveSyncPanel(transCol);
 	}
 
-
-	public IPNReplayParameter createParameters(IPNReplayParameter selectedParam) {
+	public IPNReplayParameter constructReplayParameter() {
 		System.out.println("PNetParameters: createParameters()");
 
-		// Creating Parameters
-		XEventClass dummyEvClass = new XEventClass("Dummy", -1);
-//		selectedParam = new CostBasedCompleteParam(XEventAnalysis.getEventClassCollection(log), dummyEvClass,
-//				net.getTransitions(), 1, 1);
-		selectedParam = new CostBasedCompleteParam (mapXEvClass2RowIndex, mapTrans2RowIndex,mapSync2RowIndex);
-		return selectedParam;
+		CostBasedCompleteParam paramObj = new CostBasedCompleteParam(getMapEvClassToCost(), getTransitionWeight());
+		paramObj.setMapSync2Cost(getSyncCost());
+		paramObj.setMaxNumOfStates(getMaxNumOfStates());
+		paramObj.setInitialMarking(initMarking);
+		paramObj.setFinalMarkings(finalMarkings);
+		paramObj.setUsePartialOrderedEvents(false);
+		
+		return paramObj;
 	}
 
 	/**
@@ -138,8 +167,8 @@ public class PNetParameters {
 		int rowCounter = 0;
 		for (Transition trans : sortedTransitions) {
 			if (!trans.isInvisible()) {
-					tableContent[rowCounter] = new Object[] { trans.getLabel(), 0 };
-				
+				tableContent[rowCounter] = new Object[] { trans.getLabel(), 0 };
+
 				mapSync2RowIndex.put(trans, rowCounter);
 				rowCounter++;
 			}
@@ -192,5 +221,55 @@ public class PNetParameters {
 	 */
 	public Integer getMaxNumOfStates() {
 		return limExpInstances;
+	}
+
+	/**
+	 * get initial marking
+	 * 
+	 * @param context
+	 * @param net
+	 * @return
+	 */
+	private Marking getInitialMarking(PluginContext context, PetrinetGraph net) {
+		// check connection between petri net and marking
+		Marking initMarking = null;
+		try {
+			initMarking = context.getConnectionManager()
+					.getFirstConnection(InitialMarkingConnection.class, context, net)
+					.getObjectWithRole(InitialMarkingConnection.MARKING);
+		} catch (ConnectionCannotBeObtained exc) {
+			initMarking = new Marking();
+		}
+		return initMarking;
+	}
+
+	/**
+	 * Derive final markings from accepting states
+	 * 
+	 * @param context
+	 * @param net
+	 * @param initMarking
+	 * @return
+	 */
+	private Marking[] getFinalMarkings(PluginContext context, PetrinetGraph net, Marking initMarking) {
+		// check if final marking exists
+		Marking[] finalMarkings = null;
+		try {
+			Collection<FinalMarkingConnection> finalMarkingConnections = context.getConnectionManager()
+					.getConnections(FinalMarkingConnection.class, context, net);
+			if (finalMarkingConnections.size() != 0) {
+				Set<Marking> setFinalMarkings = new HashSet<Marking>();
+				for (FinalMarkingConnection conn : finalMarkingConnections) {
+					setFinalMarkings.add((Marking) conn.getObjectWithRole(FinalMarkingConnection.MARKING));
+				}
+				finalMarkings = setFinalMarkings.toArray(new Marking[setFinalMarkings.size()]);
+			} else {
+				finalMarkings = new Marking[0];
+			}
+		} catch (ConnectionCannotBeObtained exc) {
+			// no final marking provided, give an empty marking
+			finalMarkings = new Marking[0];
+		}
+		return finalMarkings;
 	}
 }

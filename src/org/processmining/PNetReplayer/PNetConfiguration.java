@@ -104,8 +104,8 @@ public class PNetConfiguration {
 
 		// Create Params:// Requesting Parameters
 		if (!paramAvailable) {
-			PNetParameters pNetParam = new PNetParameters(net, log);
-			selectedParam = pNetParam.createParameters(selectedParam);
+			PNetParameters pNetParam = new PNetParameters(context, net, log, mapping);
+			selectedParam = pNetParam.constructReplayParameter();
 
 			// Makking paramAvailable true for this Object.
 			paramAvailable = true;
