@@ -34,7 +34,7 @@ public class DummyPlugin {
 			Petrinet.class }, parameterLabels = { "Log" }, userAccessible = true)
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "Saad Ahmed", email = "saad.ahmed@rwth-aachen.de")
 	@PluginVariant(variantLabel = "Mine a Process Tree, dialog", requiredParameterLabels = { 0 })
-	public Object[] dummyPlugin(UIPluginContext context, XLog log) throws ConnectionCannotBeObtained, AStarException {
+	public Object dummyPlugin(UIPluginContext context, XLog log) throws ConnectionCannotBeObtained, AStarException {
 		System.out.println("DummyPlugin: Start");
 
 		if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(new JPanel(),
@@ -58,14 +58,18 @@ public class DummyPlugin {
 		Map<String, Object> info = pnRepResult.getInfo();
 		System.out.println("TraceFitness: " + info.get(PNRepResult.TRACEFITNESS));
 		
+		for(String key: info.keySet()){
+			System.out.println( key + " : "+ info.get(key));
+		}
+		
 		// Calculating Precision
 		ETConformanceAutomation etConf = new ETConformanceAutomation(context, net, log);
 		MultiETCResult etcResult = etConf.checkETCAlign1(pnRepResult);
 		System.out.println("Precession: " + etcResult.getAttribute(MultiETCResult.PRECISION)); 
 		System.out.println("DummyPlugin: End");
-		context.getFutureResult(0).cancel(true);
-		context.getFutureResult(1).cancel(true);
-		return null;
+//		context.getFutureResult(0).cancel(true);
+//		context.getFutureResult(1).cancel(true);
+		return net;
 
 	}
 

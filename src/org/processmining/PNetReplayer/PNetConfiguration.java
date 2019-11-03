@@ -58,16 +58,19 @@ public class PNetConfiguration {
 	public static final int MAPPING = 0;
 	public static final int ALGORITHM = 1;
 	public static final int PARAMETERS = 2;
-
-	private TransEvClassMapping mapping;
+	
+	
+	public static boolean run = true;
+	
+	public  TransEvClassMapping mapping;
 	private boolean mappingAvailable = false;
 
 	// Algorithm
-	private IPNReplayAlgorithm selectedAlg;
+	public IPNReplayAlgorithm selectedAlg;
 	private boolean algoAvailable = false;
 
 	// Parameters CostBasedCompleteParam:
-	private IPNReplayParameter selectedParam;
+	public IPNReplayParameter selectedParam;
 	private boolean paramAvailable = false;
 
 	public Object[] getConfiguration(UIPluginContext context, PetrinetGraph net, XLog log) {
@@ -80,6 +83,8 @@ public class PNetConfiguration {
 
 		if(!mappingStatus(context, net, log, conn)) {
 			return null;// Mapping not created, finishing plugin
+		}else {
+			mappingAvailable = true;
 		}
 
 		// create Algorithm
@@ -88,16 +93,9 @@ public class PNetConfiguration {
 		}
 
 		// Create Params:// Requesting Parameters
-		if (!paramAvailable) {
-			PNetParameters pNetParam = new PNetParameters(context, net, log, mapping);
-			selectedParam = pNetParam.constructReplayParameter();
-
-			// Makking paramAvailable true for this Object.
-			paramAvailable = true;
-			
-			System.out.println("Param Class: " + selectedParam.getClass().toString());
-			boolean satisfaction = selectedAlg.isAllReqSatisfied(context, net, log, mapping, selectedParam);
-			System.out.println("Algo Satisfied with param: " + satisfaction);
+//		if (!paramAvailable) {
+		if(true) {
+			createParameters(context, net, log);
 		}
 
 		System.out.println("PNetConfiguration: SelectedAlgo: " + selectedAlg.toString());
@@ -107,6 +105,16 @@ public class PNetConfiguration {
 		// Here is the finalResultStatement
 		return new Object[] { mapping, selectedAlg, selectedParam };
 
+	}
+
+	public IPNReplayParameter createParameters(PluginContext context, PetrinetGraph net, XLog log) {
+		PNetParameters pNetParam = new PNetParameters(context, net, log, mapping);
+		selectedParam = pNetParam.constructReplayParameter();
+		
+		System.out.println("Param Class: " + selectedParam.getClass().toString());
+		boolean satisfaction = selectedAlg.isAllReqSatisfied(context, net, log, mapping, selectedParam);
+		System.out.println("Algo Satisfied with param: " + satisfaction);
+		return selectedParam;
 	}
 
 	private boolean mappingStatus(UIPluginContext context, PetrinetGraph net, XLog log,
@@ -145,11 +153,12 @@ public class PNetConfiguration {
 						"Empty Initial Marking", JOptionPane.INFORMATION_MESSAGE);
 			}
 		} catch (ConnectionCannotBeObtained exc) {
-			if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(new JPanel(),
-					"No initial marking is found for this model. Do you want to create one?", "No Initial Marking",
-					JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE)) {
-				createMarking(context, net, InitialMarkingConnection.class);
-			}
+//			if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(new JPanel(),
+//					"No initial marking is found for this model. Do you want to create one?", "No Initial Marking",
+//					JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE)) {
+//				createMarking(context, net, InitialMarkingConnection.class);
+//			}
+			createMarking(context, net, InitialMarkingConnection.class);
 			;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -159,11 +168,12 @@ public class PNetConfiguration {
 		try {
 			context.getConnectionManager().getFirstConnection(FinalMarkingConnection.class, context, net);
 		} catch (ConnectionCannotBeObtained exc) {
-			if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(new JPanel(),
-					"No final marking is found for this model. Do you want to create one?", "No Final Marking",
-					JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE)) {
-				createMarking(context, net, FinalMarkingConnection.class);
-			}
+//			if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(new JPanel(),
+//					"No final marking is found for this model. Do you want to create one?", "No Final Marking",
+//					JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE)) {
+//				createMarking(context, net, FinalMarkingConnection.class);
+//			}
+			createMarking(context, net, FinalMarkingConnection.class);
 			;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -184,7 +194,7 @@ public class PNetConfiguration {
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(new JPanel(), "No mapping can be constructed between the net and the log");
 			mappingAvailable = false;
-			return mappingAvailable;
+			return false;
 		}
 
 		// init gui for each step
@@ -244,10 +254,14 @@ public class PNetConfiguration {
 
 		for (Transition t : net.getTransitions()) {
 			boolean mapped = false;
-
+			String label = t.getLabel();
+			String plusComplete = "+complete";
+			if(t.getLabel().endsWith(plusComplete)) {
+				label.replace(plusComplete,"");
+			}
 			for (XEventClass evClass : summary.getEventClasses().getClasses()) {
 				String id = evClass.getId();
-				String label = t.getLabel();
+				
 
 				if (label.equals(id)) {
 					mapping.put(t, evClass);
@@ -258,6 +272,7 @@ public class PNetConfiguration {
 		}
 		System.out.println("mapping");
 		System.out.println(mapping);
+		
 
 		return mapping;
 	}

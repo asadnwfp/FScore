@@ -17,6 +17,7 @@ import org.processmining.models.connections.petrinets.behavioral.InitialMarkingC
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph;
 import org.processmining.models.semantics.petrinet.Marking;
+import org.processmining.plugins.astar.petrinet.PetrinetReplayerWithILP;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
 import org.processmining.plugins.petrinet.replayer.algorithms.IPNReplayAlgorithm;
 import org.processmining.plugins.petrinet.replayer.algorithms.IPNReplayParameter;
@@ -37,17 +38,22 @@ public class PNetReplayerAutomate {
 	}
 
 	public PNRepResult getPNetRepResult() throws ConnectionCannotBeObtained, AStarException {
-		System.out.println("PNetReplayer: getPNetReplayer");
+		System.out.println("PNetReplayer: getPNetReplayer()");
 		// Getting the PNetConfigurations
 		PNetConfiguration pNetConfiguration = new PNetConfiguration();
+		IPNReplayAlgorithm selectedAlg;
+		IPNReplayParameter parameters;
+		TransEvClassMapping mapping;
+
 		Object[] resultConfiguration = pNetConfiguration.getConfiguration((UIPluginContext) context, net, log);
 		context.log("replay is performed. All parameters are set.");
-//		context.getConnectionManager().getFirstConnection(EvClassLogPetrinetConnection.class, context, net, log);
 
 		// get all parameters
-		IPNReplayAlgorithm selectedAlg = (IPNReplayAlgorithm) resultConfiguration[PNetConfiguration.ALGORITHM];
-		IPNReplayParameter parameters = (IPNReplayParameter) resultConfiguration[PNetConfiguration.PARAMETERS];
-		TransEvClassMapping mapping = (TransEvClassMapping) resultConfiguration[PNetConfiguration.MAPPING];
+		selectedAlg = (IPNReplayAlgorithm) resultConfiguration[PNetConfiguration.ALGORITHM];
+		parameters = (IPNReplayParameter) resultConfiguration[PNetConfiguration.PARAMETERS];
+		mapping = (TransEvClassMapping) resultConfiguration[PNetConfiguration.MAPPING];
+
+		PNetConfiguration.run = false;
 
 		PNRepResult replayRes = selectedAlg.replayLog(context, net, log, mapping, parameters);
 
@@ -60,11 +66,10 @@ public class PNetReplayerAutomate {
 
 		context.getFutureResult(0).setLabel("Replay result - log " + XConceptExtension.instance().extractName(log)
 				+ " on " + net.getLabel() + " using " + selectedAlg.toString());
-		
+
 		return replayRes;
 	}
 
-	
 	protected void createConnections(PluginContext context, PetrinetGraph net, XLog log, TransEvClassMapping mapping,
 			IPNReplayAlgorithm selectedAlg, IPNReplayParameter parameters, PNRepResult replayRes) {
 		context.addConnection(new PNRepResultAllRequiredParamConnection("Connection between replay result, "
@@ -75,8 +80,5 @@ public class PNetReplayerAutomate {
 	public void setNet(Petrinet net) {
 		this.net = net;
 	}
-	
-	
-	
 
 }
