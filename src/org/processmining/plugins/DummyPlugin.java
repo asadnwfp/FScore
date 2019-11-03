@@ -6,6 +6,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.deckfour.xes.model.XLog;
+import org.processmining.ETConformance.ETConformanceAutomation;
 import org.processmining.PNetReplayer.PNetReplayerAutomate;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
@@ -18,6 +19,7 @@ import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMf;
 import org.processmining.plugins.InductiveMiner.plugins.IMPetriNet;
 import org.processmining.plugins.inductiveminer.IM;
+import org.processmining.plugins.multietc.res.MultiETCResult;
 import org.processmining.plugins.parameter.MatrixFilterParameter;
 import org.processmining.plugins.petrinet.replayresult.PNRepResult;
 import org.processmining.plugins.splitminer.SM;
@@ -50,12 +52,16 @@ public class DummyPlugin {
 			net = createPetrinetWithSplitMiner(context, log);
 		}
 
+		// Calculating Fitness
 		PNetReplayerAutomate pNetReplayer = new PNetReplayerAutomate(context, net, log);
 		PNRepResult pnRepResult = pNetReplayer.getPNetRepResult();
 		Map<String, Object> info = pnRepResult.getInfo();
 		System.out.println("TraceFitness: " + info.get(PNRepResult.TRACEFITNESS));
 		
-
+		// Calculating Precision
+		ETConformanceAutomation etConf = new ETConformanceAutomation(context, net, log);
+		MultiETCResult etcResult = etConf.checkETCAlign1(pnRepResult);
+		System.out.println("Precession: " + etcResult.getAttribute(MultiETCResult.PRECISION)); 
 		System.out.println("DummyPlugin: End");
 		context.getFutureResult(0).cancel(true);
 		context.getFutureResult(1).cancel(true);
