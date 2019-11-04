@@ -128,11 +128,7 @@ public class MinerSelection {
 		
 		ResultBoard results = new ResultBoard();
 		results.createTableColumns(miner);
-<<<<<<< HEAD
-		results.setTitle(results.getTitle());
-=======
 		results.setTitle(results.getTitle() + " - " + XConceptExtension.instance().extractName(log));
->>>>>>> 9a0af8fc6a2b2838b3261ba866b7aea916da247a
 		double [] precisionAndFitness = {0d,0d}; // Precision & fitness
 		
 		
