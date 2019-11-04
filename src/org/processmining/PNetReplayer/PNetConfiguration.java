@@ -1,23 +1,17 @@
 package org.processmining.PNetReplayer;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.swing.BoxLayout;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import org.apache.tools.ant.taskdefs.Sleep;
 import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.info.XLogInfo;
@@ -41,10 +35,7 @@ import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.plugins.astar.petrinet.PetrinetReplayerWithILP;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
 import org.processmining.plugins.petrinet.replayer.algorithms.IPNReplayAlgorithm;
-import org.processmining.plugins.petrinet.replayer.algorithms.IPNReplayParamProvider;
 import org.processmining.plugins.petrinet.replayer.algorithms.IPNReplayParameter;
-import org.processmining.plugins.petrinet.replayer.algorithms.costbasedcomplete.CostBasedCompleteParam;
-import org.processmining.plugins.petrinet.replayer.annotations.PNReplayAlgorithm;
 import org.processmining.utils.XEventAnalysis;
 
 /**
@@ -198,6 +189,7 @@ public class PNetConfiguration {
 		}
 
 		// init gui for each step
+		System.out.println("GUIMapping: " + conn.getObjectWithRole(EvClassLogPetrinetConnection.TRANS2EVCLASSMAPPING).getClass().getCanonicalName() );
 		mapping = (TransEvClassMapping) conn.getObjectWithRole(EvClassLogPetrinetConnection.TRANS2EVCLASSMAPPING);
 
 		checkInvisibleTransitions(mapping);
@@ -245,13 +237,13 @@ public class PNetConfiguration {
 		System.out.println("PNetConfiguration: constructMapping()");
 		// LogAnalysis
 		XEventAnalysis.getAnalysis(log);
-
 		XEventClass dummyEvClass = new XEventClass("Dummy", -1);
 		XEventClassifier eventClassifier = XLogInfoImpl.NAME_CLASSIFIER;
 
 		mapping = new TransEvClassMapping(eventClassifier, dummyEvClass);
 		XLogInfo summary = XLogInfoFactory.createLogInfo(log, eventClassifier);
 
+		System.out.println("PetriNet Transition Size: " + net.getTransitions().size() );
 		for (Transition t : net.getTransitions()) {
 			boolean mapped = false;
 			String label = t.getLabel();
@@ -270,8 +262,9 @@ public class PNetConfiguration {
 				}
 			}
 		}
-		System.out.println("mapping");
-		System.out.println(mapping);
+		System.out.println("Transitions: " + net.getTransitions());
+		System.out.println("mapping: " + mapping);
+		
 		
 
 		return mapping;
@@ -281,72 +274,11 @@ public class PNetConfiguration {
 		System.out.println("PNetConfiguration: getAlgo()");
 		algoAvailable = true;
 
-		IPNReplayAlgorithm[] listAlgorithms = getAvailabelAlgorithms(context, net, log);
-		selectedAlg = null;
-		for (IPNReplayAlgorithm algo : listAlgorithms) {
-			System.out.println("########## Algo ############");
-			System.out.println("Name of Algorithm: " + algo.toString());
-			System.out.println("Algorithm Class: " + algo.getClass());
-			// A* Cost-based Fitness Express with ILP (swap+replacement aware), assuming at
-			// most 32767 tokens in each place.
-			// A* Cost-based Fitness Express with ILP and Partial aware, assuming at most
-			// 32767 tokens in each place.
-			// A* Cost-based Replay with ILP with move model restriction, assuming at most
-			// 32767 tokens in each place.
-			// A* Cost-based Replay without ILP with move model restriction, assuming at
-			// most 32767 tokens in each place.
-			// ILP-based replayer assuming at most 32767 tokens in each place.
-			// Splitting replayer assuming at most 127 tokens in each place.
-		}
-		System.out.println("########## Selected Algo ############");
-		for (IPNReplayAlgorithm algo : listAlgorithms) {
-			if (algo.toString().contentEquals("ILP-based replayer assuming at most 32767 tokens in each place.")) {
-				System.out.println("Name of Algorithm: " + algo.toString());
-				System.out.println("Algorithm Class: " + algo.getClass());
-				selectedAlg = algo;
-				System.out.println(
-						"Algo is Instance of PetrinetReplayerWithILP: " + (algo instanceof PetrinetReplayerWithILP));
-			}
-		}
-
 		PetrinetReplayerWithILP algoPetrinetReplayerWithILP = new PetrinetReplayerWithILP();
 		System.out.println("Is Request without parameter Satisfied: "
 				+ algoPetrinetReplayerWithILP.isReqWOParameterSatisfied(context, net, log, mapping));
 
-		return selectedAlg;
-	}
-
-	private IPNReplayAlgorithm[] getAvailabelAlgorithms(PluginContext context, PetrinetGraph net, XLog log) {
-		// get all algorithms from the framework
-		Set<Class<?>> coverageEstimatorClasses = context.getPluginManager()
-				.getKnownClassesAnnotatedWith(PNReplayAlgorithm.class);
-		IPNReplayAlgorithm[] availAlgorithms = null;
-		if (coverageEstimatorClasses != null) {
-			List<IPNReplayAlgorithm> algList = new LinkedList<IPNReplayAlgorithm>();
-			for (Class<?> coverClass : coverageEstimatorClasses) {
-				try {
-					IPNReplayAlgorithm alg = (IPNReplayAlgorithm) coverClass.newInstance();
-					if (alg.isReqWOParameterSatisfied(context, net, log, mapping)) {
-						algList.add(alg);
-					}
-				} catch (InstantiationException e1) {
-					// do nothing
-				} catch (IllegalAccessException e1) {
-					// do nothing
-				} catch (Exception exc) {
-					// do nothing
-				}
-			}
-			Collections.sort(algList, new Comparator<IPNReplayAlgorithm>() {
-
-				public int compare(IPNReplayAlgorithm o1, IPNReplayAlgorithm o2) {
-					return o1.toString().compareTo(o2.toString());
-				}
-			});
-			availAlgorithms = algList.toArray(new IPNReplayAlgorithm[algList.size()]);
-
-		}
-		return availAlgorithms;
+		return algoPetrinetReplayerWithILP;
 	}
 
 

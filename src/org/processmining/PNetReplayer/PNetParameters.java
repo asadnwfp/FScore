@@ -1,6 +1,5 @@
 package org.processmining.PNetReplayer;
 
-import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -9,8 +8,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.table.DefaultTableModel;
 
@@ -22,17 +21,14 @@ import org.deckfour.xes.info.XLogInfoFactory;
 import org.deckfour.xes.model.XLog;
 import org.processmining.framework.connections.ConnectionCannotBeObtained;
 import org.processmining.framework.plugin.PluginContext;
-import org.processmining.framework.util.ui.widgets.ProMTable;
 import org.processmining.models.connections.petrinets.behavioral.FinalMarkingConnection;
 import org.processmining.models.connections.petrinets.behavioral.InitialMarkingConnection;
-import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
 import org.processmining.plugins.petrinet.replayer.algorithms.IPNReplayParameter;
 import org.processmining.plugins.petrinet.replayer.algorithms.costbasedcomplete.CostBasedCompleteParam;
-import org.processmining.utils.XEventAnalysis;
 
 /**
  * 
@@ -49,7 +45,7 @@ public class PNetParameters {
 	private XLog log;
 	private TransEvClassMapping mapping;
 
-	private final int limExpInstances = 2000;
+	private static final int limExpInstances = 2000;
 	// default value
 	private static final int DEFCOSTMOVEONLOG = 1;
 	private static final int DEFCOSTMOVEONMODEL = 1;
@@ -59,6 +55,10 @@ public class PNetParameters {
 
 	private Collection<Transition> transCol;
 	private Collection<XEventClass> evClassCol;
+
+	private DefaultTableModel tableModel = null;;
+	private DefaultTableModel evClassTableModel = null;
+	private DefaultTableModel syncModel = null;
 
 	// precalculated initial and final markings
 	protected Marking initMarking;
@@ -85,9 +85,9 @@ public class PNetParameters {
 		evClassCol = new HashSet<XEventClass>(eventClassesName.getClasses());
 		evClassCol.add(mapping.getDummyEventClass());
 
-		populateMoveOnModelPanel(transCol);
-		populateMoveOnLogPanel(evClassCol);
-		populateMoveSyncPanel(transCol);
+		populateMoveOnModelPanel(transCol, null);
+		populateMoveOnLogPanel(evClassCol, null);
+		populateMoveSyncPanel(transCol, null);
 	}
 
 	public IPNReplayParameter constructReplayParameter() {
@@ -99,7 +99,7 @@ public class PNetParameters {
 		paramObj.setInitialMarking(initMarking);
 		paramObj.setFinalMarkings(finalMarkings);
 		paramObj.setUsePartialOrderedEvents(false);
-		
+
 		return paramObj;
 	}
 
@@ -108,7 +108,18 @@ public class PNetParameters {
 	 * 
 	 * @param eventClassesName
 	 */
-	private void populateMoveOnLogPanel(Collection<XEventClass> eventClassesName) {
+	private void populateMoveOnLogPanel(Collection<XEventClass> eventClassesName,
+			Map<XEventClass, Integer> defaultCost) {
+		// move on log cost (determined by the selection of event class in mapping)
+		evClassTableModel = new DefaultTableModel() {
+			private static final long serialVersionUID = 5238526181467190856L;
+
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				return (column != 0);
+			};
+		};
+
 		mapXEvClass2RowIndex.clear();
 
 		// move on log cost
@@ -118,11 +129,19 @@ public class PNetParameters {
 				return t1.getId().compareTo(t2.getId());
 			}
 		});
+		Object[][] evClassTableContent = new Object[eventClassesName.size()][2];
 		int evClassRowCounter = 0;
 		for (XEventClass evClass : sortedEventClasses) {
+			if (defaultCost != null) {
+				evClassTableContent[evClassRowCounter] = new Object[] { evClass,
+						defaultCost.get(evClass) == null ? DEFCOSTMOVEONLOG : defaultCost.get(evClass) };
+			} else {
+				evClassTableContent[evClassRowCounter] = new Object[] { evClass, DEFCOSTMOVEONLOG };
+			}
 			mapXEvClass2RowIndex.put(evClass, evClassRowCounter);
 			evClassRowCounter++;
 		}
+		evClassTableModel.setDataVector(evClassTableContent, new Object[] { "Event Class", "Move on Log Cost" });
 	}
 
 	/**
@@ -130,7 +149,7 @@ public class PNetParameters {
 	 * 
 	 * @param eventClassesName
 	 */
-	private void populateMoveOnModelPanel(Collection<Transition> transitions) {
+	private void populateMoveOnModelPanel(Collection<Transition> transitions, Map<Transition, Integer> defaultCost) {
 		// create table to map move on model cost
 		List<Transition> sortedTransitions = new ArrayList<Transition>(transitions);
 		Collections.sort(sortedTransitions, new Comparator<Transition>() {
@@ -141,12 +160,18 @@ public class PNetParameters {
 		Object[][] tableContent = new Object[transitions.size()][2];
 		int rowCounter = 0;
 		for (Transition trans : sortedTransitions) {
-
-			tableContent[rowCounter] = new Object[] { trans.getLabel(), trans.isInvisible() ? 0 : DEFCOSTMOVEONMODEL };
-
+			if (defaultCost != null) {
+				tableContent[rowCounter] = new Object[] { trans.getLabel(),
+						defaultCost.get(trans) == null ? (trans.isInvisible() ? 0 : DEFCOSTMOVEONMODEL)
+								: defaultCost.get(trans) };
+			} else {
+				tableContent[rowCounter] = new Object[] { trans.getLabel(),
+						trans.isInvisible() ? 0 : DEFCOSTMOVEONMODEL };
+			}
 			mapTrans2RowIndex.put(trans, rowCounter);
 			rowCounter++;
 		}
+		tableModel = new DefaultTableModel(tableContent, new Object[] { "Transition", "Move on Model Cost" });
 
 	}
 
@@ -155,7 +180,7 @@ public class PNetParameters {
 	 * 
 	 * @param eventClassesName
 	 */
-	private void populateMoveSyncPanel(Collection<Transition> transitions) {
+	private void populateMoveSyncPanel(Collection<Transition> transitions, Map<Transition, Integer> defaultCost) {
 		// create table to map move on model cost
 		List<Transition> sortedTransitions = new ArrayList<Transition>(transitions);
 		Collections.sort(sortedTransitions, new Comparator<Transition>() {
@@ -167,12 +192,12 @@ public class PNetParameters {
 		int rowCounter = 0;
 		for (Transition trans : sortedTransitions) {
 			if (!trans.isInvisible()) {
-				tableContent[rowCounter] = new Object[] { trans.getLabel(), 0 };
 
 				mapSync2RowIndex.put(trans, rowCounter);
 				rowCounter++;
 			}
 		}
+		syncModel = new DefaultTableModel(tableContent, new Object[] { "Transition", "Move Synchronous Cost" });
 	}
 
 	/**
@@ -181,10 +206,23 @@ public class PNetParameters {
 	 * @return
 	 */
 	public Map<XEventClass, Integer> getMapEvClassToCost() {
+		System.out.println("PNetParameters : getMapEvClassToCost()");
 		Map<XEventClass, Integer> mapEvClass2Cost = new HashMap<XEventClass, Integer>();
 		for (XEventClass evClass : mapXEvClass2RowIndex.keySet()) {
-			mapEvClass2Cost.put(evClass, DEFCOSTMOVEONLOG);
+			int index = mapXEvClass2RowIndex.get(evClass);
+			if (evClassTableModel.getValueAt(index, 1) instanceof Integer) {
+				mapEvClass2Cost.put(evClass, (Integer) evClassTableModel.getValueAt(index, 1));
+			} else {
+				try {
+					mapEvClass2Cost.put(evClass,
+							Integer.parseInt(evClassTableModel.getValueAt(index, 1).toString().trim()));
+				} catch (Exception exc) {
+					mapEvClass2Cost.put(evClass, DEFCOSTMOVEONLOG);
+				}
+
+			}
 		}
+		System.out.println("MoveModelCost: " + mapEvClass2Cost);
 		return mapEvClass2Cost;
 	}
 
@@ -194,10 +232,22 @@ public class PNetParameters {
 	 * @return
 	 */
 	public Map<Transition, Integer> getTransitionWeight() {
+		System.out.println("PNetParameters : getTransitionWeight()");
 		Map<Transition, Integer> costs = new HashMap<Transition, Integer>();
 		for (Transition trans : mapTrans2RowIndex.keySet()) {
-			costs.put(trans, DEFCOSTMOVEONMODEL);
+			int index = mapTrans2RowIndex.get(trans);
+			if (tableModel.getValueAt(index, 1) instanceof Integer) {
+				costs.put(trans, (Integer) tableModel.getValueAt(index, 1));
+			} else { // instance of other
+				try {
+					costs.put(trans, Integer.parseInt(tableModel.getValueAt(index, 1).toString().trim()));
+				} catch (Exception exc) {
+					costs.put(trans, DEFCOSTMOVEONMODEL);
+				}
+
+			}
 		}
+		System.out.println("MoveModelCost: " + costs);
 		return costs;
 	}
 
@@ -207,10 +257,22 @@ public class PNetParameters {
 	 * @return
 	 */
 	public Map<Transition, Integer> getSyncCost() {
+		System.out.println("PNetParameters : getSyncCost()");
 		Map<Transition, Integer> costs = new HashMap<Transition, Integer>(1);
 		for (Entry<Transition, Integer> entry : mapSync2RowIndex.entrySet()) {
-			costs.put(entry.getKey(), 0);
+			int index = entry.getValue();
+			if (syncModel.getValueAt(index, 1) instanceof Integer) {
+				costs.put(entry.getKey(), (Integer) syncModel.getValueAt(index, 1));
+			} else { // instance of other
+				try {
+					costs.put(entry.getKey(), Integer.parseInt(syncModel.getValueAt(index, 1).toString().trim()));
+				} catch (Exception exc) {
+					costs.put(entry.getKey(), 0);
+				}
+
+			}
 		}
+		System.out.println("SyncCost: " + costs);
 		return costs;
 	}
 
@@ -220,7 +282,7 @@ public class PNetParameters {
 	 * @return
 	 */
 	public Integer getMaxNumOfStates() {
-		return limExpInstances;
+		return limExpInstances * 100;
 	}
 
 	/**

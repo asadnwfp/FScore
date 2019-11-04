@@ -2,6 +2,7 @@ package org.processmining.plugins.inductiveminer;
 
 import javax.swing.JOptionPane;
 
+import org.deckfour.uitopia.api.event.TaskListener.InteractionResult;
 import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.info.XLogInfo;
 import org.deckfour.xes.info.XLogInfoFactory;

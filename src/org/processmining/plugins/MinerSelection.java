@@ -1,8 +1,7 @@
 package org.processmining.plugins;
 
-import java.awt.event.WindowEvent;
-
 import org.deckfour.uitopia.api.event.TaskListener.InteractionResult;
+import org.deckfour.xes.extension.std.XConceptExtension;
 import org.deckfour.xes.model.XLog;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
@@ -129,13 +128,17 @@ public class MinerSelection {
 		
 		ResultBoard results = new ResultBoard();
 		results.createTableColumns(miner);
+<<<<<<< HEAD
 		results.setTitle(results.getTitle());
+=======
+		results.setTitle(results.getTitle() + " - " + XConceptExtension.instance().extractName(log));
+>>>>>>> 9a0af8fc6a2b2838b3261ba866b7aea916da247a
 		double [] precisionAndFitness = {0d,0d}; // Precision & fitness
 		
 		
 		switch(miner) {
 		case Inductive_Miner:
-			while(maxFreq>=minFreq) {
+			do{
 				minFreq = ReusableMethods.get2DecimalPlaces(minFreq, true, stepLength);
 				float minThreshold = (float) minFreq;
 				minThreshold = (float) ReusableMethods.get2DecimalPlaces(minThreshold, true, stepLength);
@@ -157,13 +160,13 @@ public class MinerSelection {
 				
 				// Incrementing minFreq
 				minFreq+= stepIncremnet;
-			}
+			}while(maxFreq>=minFreq) ;
 			break;
 		case Split_Miner:
-			while(maxEpsilon>=minEpsilon){
+			do{
 				minEpsilon = ReusableMethods.get2DecimalPlaces(minEpsilon, true, stepLength);
 				
-				while(maxFreq >= minFreq) {
+				do {
 					minFreq  =  ReusableMethods.get2DecimalPlaces(minFreq, true, stepLength);
 					// Run Function for SplitMiner
 					parametersSplit.setSecondDoubleVariable(minEpsilon);
@@ -182,13 +185,13 @@ public class MinerSelection {
 					
 					
 					minFreq+=stepIncremnet;
-				}
+				}while(maxFreq >= minFreq);
 				/**
 				 * This is required, cz, the min value will be changed in the inner loop,
 				 */
 				minFreq = min; // reseting minFrequency to its original value.
 				minEpsilon+= stepIncremnet;
-			}
+			}while(maxEpsilon>=minEpsilon);
 			
 			break;
 		case ILP_Miner:
