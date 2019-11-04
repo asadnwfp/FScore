@@ -129,6 +129,7 @@ public class MinerSelection {
 		
 		ResultBoard results = new ResultBoard();
 		results.createTableColumns(miner);
+		results.setTitle(results.getTitle());
 		double [] precisionAndFitness = {0d,0d}; // Precision & fitness
 		
 		

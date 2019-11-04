@@ -36,8 +36,8 @@ public class IM {
 	@PluginVariant(variantLabel = "Mine a Process Tree, dialog", requiredParameterLabels = { 0 })
 	public Object[] mineFScore(UIPluginContext context, XLog log) throws AStarException {
 		// Disabling dialogue, to run with default values.
-//		IMMiningDialog dialog = new IMMiningDialog(log);
-//		InteractionResult result = context.showWizard("Mine F-Score using Inductive Miner", true, true, dialog);
+		IMMiningDialog dialog = new IMMiningDialog(log);
+		InteractionResult result = context.showWizard("Mine F-Score using Inductive Miner", true, true, dialog);
 		context.log("Mining...");
 		parameters = new MiningParametersIMf();
 
@@ -69,15 +69,6 @@ public class IM {
 		PNLogReplayer replayer = new PNLogReplayer();
 		LogReplayer logReplayer = new LogReplayer(replayer);
 
-		// Getting Precision from Multi ETC Plugin
-		//MultiETCPlugin multiETCPlugin = new MultiETCPlugin();
-		//ETCDialogueAutomation ui = new ETCDialogueAutomation();
-		//MultiETCSettings sett =  ui.getSettings(context);
-
-		// Getting Allignment from ETC Plugin
-		//ETCPluginAutomation etcPlugin = new ETCPluginAutomation();
-		//Object[] etcPluginObjects = etcPlugin.doETC(context, log, pn);
-
 		// ETC Utils
 		ETCUtils utils = new ETCUtils(context, log, pn);
 		utils.performETCUtils();
@@ -87,17 +78,10 @@ public class IM {
 
 		// Running first for plugin
 		pnRep = logReplayer.getGUIpnRep(context, log, pn);
-
-		//		Object [] resultConfiguration = logReplayer.getResultConfiguration();
-		//		IPNReplayAlgorithm selectedAlg = logReplayer.getSelectedAlg();
-		//		IPNReplayParameter algParameters = logReplayer.getAlgParameters();
-		//		PNReplyerUIAutomation pnReplyerUi = logReplayer.getPnReplayerUI();
 		double precision = 0d;
-
 		// Running Precision Plugin first Time with Context
-		//precision = getPrecision(context, log, pn, multiETCPlugin, sett, resultConfiguration);		
-		precision = ReusableMethods.get2DecimalPlaces(res.getEtcp(), false);
 
+		precision = ReusableMethods.get2DecimalPlaces(res.getEtcp(), false);
 		// Adding score to board:
 		resultBoard.createRow(pnRep, min, precision);
 
@@ -121,59 +105,9 @@ public class IM {
 			res = utils.getRes();
 			System.out.println("Results of ETCResults: " + res.getEtcp());
 
-			// Precision 2
-			//	pnRep = logReplayer.getGUIpnRep(context, log, pn);
-			//	resultConfiguration = logReplayer.getResultConfiguration();
-
-			// Generating Precision
-
-			//#########1st Way:############
-			//	try {
-			//		pnRep = logReplayer.getPNRepResult(context, pn, log, resultConfiguration);
-			//	} catch (ConnectionCannotBeObtained e) {
-			//		// TODO Auto-generated catch block
-			//		e.printStackTrace();
-			//	}
-
-			//#########2nd: Way########## Does Not Work
-			//	try {
-			//		pnRep =  logReplayer.replayParametersSet(context, pn, log);
-			//	} catch (ConnectionCannotBeObtained e) {
-			//		// TODO Auto-generated catch block
-			//		e.printStackTrace();
-			//	}
-
-			//#########3rd: Way########## Does Not Work
-
-			// This connection MUST exists, as it is constructed by the configuration if necessary
-			//	try {
-			//		context.getConnectionManager().getFirstConnection(EvClassLogPetrinetConnection.class, context, pn, log);
-			//
-			//		// get all parameters
-			//		selectedAlg = (IPNReplayAlgorithm) resultConfiguration[PNReplayerUI.ALGORITHM];
-			//		algParameters = (IPNReplayParameter) resultConfiguration[PNReplayerUI.PARAMETERS];
-			//
-			//		// since based on GUI, create connection
-			//		algParameters.setCreateConn(true);
-			//		algParameters.setGUIMode(true);
-			//
-			//		PNRepResult res = logReplayer.replayLogPrivate(context, pn, log,
-			//				(TransEvClassMapping) resultConfiguration[PNReplayerUI.MAPPING], selectedAlg, algParameters);
-			//
-			//		context.getFutureResult(0).setLabel(
-			//				"Replay result - log " + XConceptExtension.instance().extractName(log) + " on " + pn.getLabel()
-			//						+ " using " + selectedAlg.toString());
-			//	} catch (ConnectionCannotBeObtained e) {
-			//		// TODO Auto-generated catch block
-			//		e.printStackTrace();
-			//	}
-
-			// 4th way : Does Not work
-			//	TransEvClassMapping mappings = logReplayer.constructMapping(pn, log, pnReplyerUi.getxEventClass(), pnReplyerUi.getxEventClassifier());
 
 			pnRep = utils.getPnRepResult(logReplayer);
 			precision = ReusableMethods.get2DecimalPlaces(res.getEtcp(), false);
-
 			// Running Precision Plugin first Time with Context
 			//	precision = getPrecision(context, log, pn, multiETCPlugin, sett, resultConfiguration);
 			// Printing Results to result board
