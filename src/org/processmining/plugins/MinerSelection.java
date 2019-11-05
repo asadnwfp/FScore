@@ -134,7 +134,7 @@ public class MinerSelection {
 		
 		switch(miner) {
 		case Inductive_Miner:
-			while(maxFreq>=minFreq) {
+			 do{
 				minFreq = ReusableMethods.get2DecimalPlaces(minFreq, true, stepLength);
 				float minThreshold = (float) minFreq;
 				minThreshold = (float) ReusableMethods.get2DecimalPlaces(minThreshold, true, stepLength);
@@ -143,9 +143,7 @@ public class MinerSelection {
 				System.out.println("MinerSelection: Inductive MinFreq :" + minFreq);
 				System.out.println("MinerSelection: Inductive StepIncrement :" + stepIncremnet);
 				
-				// Generating FScore
-				precisionAndFitness = fScore.calcultate();
-				results.createRow(minFreq, precisionAndFitness[0], precisionAndFitness[1]);
+				
 				
 				// Creating new PetriNet
 				parametersInductive = new MiningParametersIMf();
@@ -154,9 +152,14 @@ public class MinerSelection {
 				pn = (Petrinet) resultObjects[0];
 				fScore.setPn(pn);
 				
+				// Generating FScore
+				precisionAndFitness = fScore.calcultate();
+				results.createRow(minFreq, precisionAndFitness[0], precisionAndFitness[1]);
+				
 				// Incrementing minFreq
 				minFreq+= stepIncremnet;
-			}
+			}while(maxFreq>=minFreq);
+			 
 			break;
 		case Split_Miner:
 			do{
