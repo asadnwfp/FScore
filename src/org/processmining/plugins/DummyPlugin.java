@@ -81,7 +81,7 @@ public class DummyPlugin {
 		LogProperties logProperties = new LogProperties(context, log);
 		logProperties.properties();
 		context.getFutureResult(0).cancel(true);
-		ReusableMethods.printLogs("Dummy Log Pllugin Start");
+		ReusableMethods.printLogs("Dummy Log Pllugin End");
 
 		
 	}

@@ -13,7 +13,7 @@ public class BasicLogInfo {
 	public static XLog log;
 	static void basicClassifiers() {
 		ReusableMethods.printLogs("##################################################");
-		ReusableMethods.printLogs("LogProperties: basicClassifiers()");
+		ReusableMethods.printLogs("BasicLogInfo: basicClassifiers()");
 		ReusableMethods.printLogs("##################################################");
 		
 		for(XEventClassifier classifier: log.getClassifiers()) {
@@ -23,7 +23,7 @@ public class BasicLogInfo {
 	
 	static void basicEventAttributes() {
 		ReusableMethods.printLogs("##################################################");
-		ReusableMethods.printLogs("LogProperties: basicEventAttributes()");
+		ReusableMethods.printLogs("BasicLogInfo: basicEventAttributes()");
 		ReusableMethods.printLogs("##################################################");
 
 		ReusableMethods.printLogs("Get EventAttributes: **");
@@ -39,7 +39,7 @@ public class BasicLogInfo {
 
 	static void basicAttributes() {
 		ReusableMethods.printLogs("##################################################");
-		ReusableMethods.printLogs("LogProperties: basicAttributes()");
+		ReusableMethods.printLogs("BasicLogInfo: basicAttributes()");
 		ReusableMethods.printLogs("##################################################");
 		XAttributeMap attributable = log.getAttributes();
 		ReusableMethods.printLogs(attributable.toString());
@@ -71,7 +71,7 @@ public class BasicLogInfo {
 		return attribute;
 	}
 
-	private static void propertiesOfAttribute(XAttribute attribute) {
+	static void propertiesOfAttribute(XAttribute attribute) {
 		ReusableMethods.printLogs("**********************************************");
 		ReusableMethods.printLogs("AttributeName: " + attribute.getKey());
 		Set<XExtension> extentionSet = attribute.getExtensions();
