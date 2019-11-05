@@ -134,7 +134,7 @@ public class MinerSelection {
 		
 		switch(miner) {
 		case Inductive_Miner:
-			do{
+			while(maxFreq>=minFreq) {
 				minFreq = ReusableMethods.get2DecimalPlaces(minFreq, true, stepLength);
 				float minThreshold = (float) minFreq;
 				minThreshold = (float) ReusableMethods.get2DecimalPlaces(minThreshold, true, stepLength);
@@ -156,7 +156,7 @@ public class MinerSelection {
 				
 				// Incrementing minFreq
 				minFreq+= stepIncremnet;
-			}while(maxFreq>=minFreq) ;
+			}
 			break;
 		case Split_Miner:
 			do{
