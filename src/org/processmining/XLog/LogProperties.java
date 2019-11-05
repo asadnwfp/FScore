@@ -11,5 +11,11 @@ public class LogProperties {
 		this.log = log;
 		this.context = context;
 	}
+	
+	public void properties() {
+		System.out.println();
+	}
+	
+	
 
 }

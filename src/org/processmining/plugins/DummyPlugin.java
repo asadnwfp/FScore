@@ -8,17 +8,16 @@ import javax.swing.JPanel;
 import org.deckfour.xes.model.XLog;
 import org.processmining.ETConformance.ETConformanceAutomation;
 import org.processmining.PNetReplayer.PNetReplayerAutomate;
+import org.processmining.XLog.LogProperties;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.connections.ConnectionCannotBeObtained;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginLevel;
 import org.processmining.framework.plugin.annotations.PluginVariant;
-import org.processmining.models.connections.petrinets.behavioral.FinalMarkingConnection;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMf;
 import org.processmining.plugins.InductiveMiner.plugins.IMPetriNet;
-import org.processmining.plugins.inductiveminer.IM;
 import org.processmining.plugins.multietc.res.MultiETCResult;
 import org.processmining.plugins.parameter.MatrixFilterParameter;
 import org.processmining.plugins.petrinet.replayresult.PNRepResult;
@@ -71,6 +70,16 @@ public class DummyPlugin {
 //		context.getFutureResult(1).cancel(true);
 		return net;
 
+	}
+	
+	@Plugin(name = "DummyPluginXlog", level = PluginLevel.Local, returnLabels = {}, returnTypes = {}, parameterLabels = { "Log" }, userAccessible = true)
+	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "Saad Ahmed", email = "saad.ahmed@rwth-aachen.de")
+	@PluginVariant(variantLabel = "Dummy Mine XLog", requiredParameterLabels = { 0 })
+	public void dummyPluginXLog(UIPluginContext context, XLog log) throws ConnectionCannotBeObtained, AStarException {
+		LogProperties logProperties = new LogProperties(context, log);
+		context.getFutureResult(0).cancel(true);
+
+		
 	}
 
 	private Petrinet createPetrinetWithSplitMiner(UIPluginContext context, XLog log) {
