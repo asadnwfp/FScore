@@ -20,5 +20,16 @@ public class ReusableMethods {
 			}
 	}
 	
+	public static String getAnyThingAfterPlus(String label){
+		System.out.println("ReusableMethods: getAnyThingAfterPlus");
+		String pattern = "\\+[^\\+]+$"; // Matches Any Character Starting with the last plus
+		String[] labelSplit = label.split(pattern);
+		
+		// Printing for Log
+		System.out.println("Label: " + label);
+		System.out.println("Split: " + labelSplit[0]);
+		return labelSplit[0];
+	}
+	
 
 }

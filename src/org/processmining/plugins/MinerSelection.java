@@ -175,11 +175,6 @@ public class MinerSelection {
 					
 					// Running Fscore:
 					precisionAndFitness = fScore.calcultate();
-//					pnf.generateLogFromPetrinet((UIPluginContext) context, log, pn, marking);
-//					precisionAndFitness[0] = pnf.getPrecision();
-//					precisionAndFitness[1] = pnf.getFitness();
-					
-					
 					results.createRow(minEpsilon,minFreq, precisionAndFitness[0], precisionAndFitness[1]);
 					
 					
