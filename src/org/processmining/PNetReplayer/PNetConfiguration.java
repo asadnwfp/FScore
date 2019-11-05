@@ -36,6 +36,7 @@ import org.processmining.plugins.astar.petrinet.PetrinetReplayerWithILP;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
 import org.processmining.plugins.petrinet.replayer.algorithms.IPNReplayAlgorithm;
 import org.processmining.plugins.petrinet.replayer.algorithms.IPNReplayParameter;
+import org.processmining.utils.ReusableMethods;
 import org.processmining.utils.XEventAnalysis;
 
 /**
@@ -247,10 +248,7 @@ public class PNetConfiguration {
 		for (Transition t : net.getTransitions()) {
 			boolean mapped = false;
 			String label = t.getLabel();
-			String plusComplete = "+complete";
-			if(t.getLabel().endsWith(plusComplete)) {
-				label.replace(plusComplete,"");
-			}
+			label = ReusableMethods.getAnyThingAfterPlus(label);
 			for (XEventClass evClass : summary.getEventClasses().getClasses()) {
 				String id = evClass.getId();
 				
