@@ -23,6 +23,7 @@ import org.processmining.plugins.parameter.MatrixFilterParameter;
 import org.processmining.plugins.petrinet.replayresult.PNRepResult;
 import org.processmining.plugins.splitminer.SM;
 import org.processmining.plugins.splitminer.SplitMinerinProMPlugin;
+import org.processmining.utils.ReusableMethods;
 
 import nl.tue.astar.AStarException;
 
@@ -76,8 +77,11 @@ public class DummyPlugin {
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "Saad Ahmed", email = "saad.ahmed@rwth-aachen.de")
 	@PluginVariant(variantLabel = "Dummy Mine XLog", requiredParameterLabels = { 0 })
 	public void dummyPluginXLog(UIPluginContext context, XLog log) throws ConnectionCannotBeObtained, AStarException {
+		ReusableMethods.printLogs("Dummy Log Pllugin Start");
 		LogProperties logProperties = new LogProperties(context, log);
+		logProperties.properties();
 		context.getFutureResult(0).cancel(true);
+		ReusableMethods.printLogs("Dummy Log Pllugin Start");
 
 		
 	}
