@@ -29,10 +29,16 @@ public class LogProperties {
 //		BasicLogInfo.basicClassifiers();
 //		BasicLogInfo.basicEventAttributes();
 		
-		initiateProperties ();
-		printEventsClasses();
-		printTimeBoundaries();
-		metaAttributeInfo();
+//		initiateProperties ();
+//		printEventsClasses();
+//		printTimeBoundaries();
+//		metaAttributeInfo();
+		
+		//Creating Log Traces
+		ReusableMethods.setContext(context);
+		new LogVariance(log).showTraces();
+		ReusableMethods.removeContext();
+//		ReusableMethods.printLogs("**********************************************");
 
 	}
 	

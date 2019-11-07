@@ -24,6 +24,7 @@ import org.processmining.plugins.petrinet.replayresult.PNRepResult;
 import org.processmining.plugins.splitminer.SM;
 import org.processmining.plugins.splitminer.SplitMinerinProMPlugin;
 import org.processmining.utils.ReusableMethods;
+import org.processmining.utils.ReusableMethods.Logger;
 
 import nl.tue.astar.AStarException;
 
@@ -77,11 +78,14 @@ public class DummyPlugin {
 	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "Saad Ahmed", email = "saad.ahmed@rwth-aachen.de")
 	@PluginVariant(variantLabel = "Dummy Mine XLog", requiredParameterLabels = { 0 })
 	public void dummyPluginXLog(UIPluginContext context, XLog log) throws ConnectionCannotBeObtained, AStarException {
-		ReusableMethods.printLogs("Dummy Log Pllugin Start");
+		//printLogStatus();
+		ReusableMethods.printLogs("Dummy Log Plugin Start");
+//		Process progress = (Process) context.getProgress();
+		context.getProgress().setIndeterminate(true);
 		LogProperties logProperties = new LogProperties(context, log);
 		logProperties.properties();
 		context.getFutureResult(0).cancel(true);
-		ReusableMethods.printLogs("Dummy Log Pllugin End");
+		ReusableMethods.printLogs("Dummy Log Plugin End");
 
 		
 	}
@@ -102,6 +106,34 @@ public class DummyPlugin {
 		Object[] resultObjects = IMPetriNet.minePetriNet(context, log, parametersInductive);
 		Petrinet net = (Petrinet) resultObjects[0];
 		return net;
+	}
+	
+	private void printLogStatus() {
+		
+		switch (ReusableMethods.logger) {
+			case CONSOLE :
+				if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(new JPanel(),
+						"Current log goes to console, Do you want to shift to File?", "Choose Logging",
+						JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE)) {
+					ReusableMethods.logger = Logger.FILE_OUTPUT;
+
+				}				break;
+			case FILE_OUTPUT :
+				if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(new JPanel(),
+						"Current log goes to file, Do you want to shift it to console?", "Choose Logging",
+						JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE)) {
+					ReusableMethods.logger = Logger.CONSOLE;
+
+				}
+
+				
+				break;
+
+			default :
+				break;
+		}
+		
+		
 	}
 
 }

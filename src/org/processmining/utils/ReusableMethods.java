@@ -1,13 +1,43 @@
 package org.processmining.utils;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.models.semantics.petrinet.Marking;
 
 public class ReusableMethods {
 	// precalculated initial and final markings
+
+	//	private static final boolean Debug = true;
+	//	private static final boolean FileOutput = true;
+	public enum Logger {
+		CONSOLE, FILE_OUTPUT
+	};
+
+	public static Logger logger = Logger.CONSOLE;
+	private static File file = new File(".");
+	private static PrintStream FileOutput = null;
+	private final static PrintStream originalStream = System.out;
 	
-	public static final boolean Debug = true;
-	
+	private static PluginContext currentContext;
+	private static boolean haveContext = false;
+	static {
+		try {
+			FileOutput = new PrintStream(new FileOutputStream(file.getCanonicalPath() + "/notes/output.txt"));
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println("Could NOt Create OutPutStream");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	public static Marking initMarking = null;
 	public static Marking[] finalMarkings = null;
 
@@ -50,20 +80,48 @@ public class ReusableMethods {
 	 * PrintLogs to the screen and console
 	 */
 	public static void printLogs(String message, PluginContext context) {
-		if (Debug) {
-			System.out.println(message);
-			context.log(message);
+		switch (logger) {
+			case CONSOLE :
+				System.setOut(originalStream);
+				System.out.println(message);
+				context.log(message);
+				break;
+			case FILE_OUTPUT :
+				System.setOut(FileOutput);
+				System.out.println(message);
+				context.log(message);
+				break;
+
 		}
+
 	}
-	/**
-	 * PrintLogs to the screen and console
-	 */
+
 	public static void printLogs(String message) {
-		if (Debug) {
-			System.out.println(message);
+
+		if (!haveContext) {
+			switch (logger) {
+				case CONSOLE :
+					System.setOut(originalStream);
+					System.out.println(message);
+					break;
+				case FILE_OUTPUT :
+					System.setOut(FileOutput);
+					System.out.println(message);
+					break;
+
+			}
+		} else {
+			printLogs(message, currentContext);
 		}
+
 	}
-
-
+	
+	public static void setContext(PluginContext context) {
+		currentContext =context;
+		haveContext = true;
+	}
+	
+	public static void removeContext() {
+		haveContext = false;
+	}
 }
-

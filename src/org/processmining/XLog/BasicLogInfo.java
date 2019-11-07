@@ -58,6 +58,24 @@ public class BasicLogInfo {
 		ReusableMethods.printLogs("Attributes");
 	}
 	
+	static void basicAttributes(XAttributeMap attributable) {
+		ReusableMethods.printLogs("##################################################");
+		ReusableMethods.printLogs("BasicLogInfo: basicAttributes()");
+		ReusableMethods.printLogs("##################################################");
+		ReusableMethods.printLogs(attributable.toString());
+
+		ReusableMethods.printLogs("Attribute Key Set");
+		ReusableMethods.printLogs("**********************************************");
+		for (String key : attributable.keySet()) {
+			ReusableMethods.printLogs("Key : " + key);
+			getXAttribute(attributable, key);
+
+			ReusableMethods.printLogs("************ Iteration Finish *******************");
+			
+
+		}
+	}
+	
 
 	private static XAttribute getXAttribute(XAttributeMap attributeMap, String attributeKey) {
 		/**
@@ -65,16 +83,17 @@ public class BasicLogInfo {
 		 * XAttribute, XAttributeBoolean, XAttributeContinuous, XAttributeDiscrete, XAttributeLiteral, XAttributeTimestamp, XElement, XEvent, XLog, XTrace
 		 */
 		XAttribute attribute = attributeMap.get(attributeKey);
-		ReusableMethods.printLogs("Attributes : " + attribute);
+		ReusableMethods.printLogs("Attribute: " + attribute);
 		propertiesOfAttribute(attribute);
 		
 		return attribute;
 	}
 
 	static void propertiesOfAttribute(XAttribute attribute) {
-		ReusableMethods.printLogs("**********************************************");
+		ReusableMethods.printLogs("******************* Properties of Attribute ***************************");
 		ReusableMethods.printLogs("AttributeName: " + attribute.getKey());
 		Set<XExtension> extentionSet = attribute.getExtensions();
+		System.out.println("ExtentionSet: " + extentionSet);
 		ReusableMethods.printLogs("extentionSet: " + extentionSet.size());
 		ReusableMethods.printLogs("************ Iteration *******************");
 		for (XExtension extension : extentionSet) {
@@ -87,6 +106,7 @@ public class BasicLogInfo {
 			}
 			ReusableMethods.printLogs("************ Iteration Finish *******************");
 		}
+		
 	}
 
 }
