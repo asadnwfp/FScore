@@ -36,7 +36,7 @@ public class LogProperties {
 		
 		//Creating Log Traces
 		ReusableMethods.setContext(context);
-		new LogVariance(log).showTraces();
+		new LogVariance(log).instantiate();
 		ReusableMethods.removeContext();
 //		ReusableMethods.printLogs("**********************************************");
 

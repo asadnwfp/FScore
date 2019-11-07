@@ -13,9 +13,10 @@
     	<dependency org="prom" name="InductiveMinerDeprecated" rev="latest" changing="true" transitive="true" />
     	<dependency org="prom" name="HeuristicsMiner" rev="latest" changing="true" transitive="true" />
     	<dependency org="prom" name="PNetReplayer" rev="latest" changing="true" transitive="true" />
-        <dependency org="prom" name="PNetReplayer" rev="latest" changing="true" transitive="true" />
+    	<dependency org="prom" name="LogEnhancement" rev="latest" changing="true" transitive="true" />
         <dependency org="prom" name="ETConformance" rev="latest" changing="true" transitive="true" />
         <dependency org="prom" name="ILPMiner" rev="latest" changing="true" transitive="true" />
+        <dependency org="prom" name="DataAwareExplorer" rev="latest" changing="true" transitive="true" />
         <dependency org="prom" name="LogFiltering" rev="latest" changing="true" transitive="true" />
         <dependency org="prom" name="StochasticPetriNets" rev="latest" changing="true" transitive="true" />
         <dependency conf="lib->default" org="org.eclipse.collections" name="eclipse-collections" rev="9.2.0" />
