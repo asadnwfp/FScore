@@ -1,0 +1,154 @@
+Start plug-in DummyPluginXlog
+Dummy Log Pllugin Start
+LogProperties: properties()
+##################################################
+LogProperties: printEventsClasses()
+##################################################
+Classifer: Resource
+Class Size: 21
+XEventClass: Alex
+XEventClass: Ralph
+XEventClass: Vanessa
+XEventClass: Jo
+XEventClass: Alice
+XEventClass: Eric
+XEventClass: Nick
+XEventClass: Jesse
+XEventClass: Rose
+XEventClass: Martin
+XEventClass: Jane
+XEventClass: Nigel
+XEventClass: Claire
+XEventClass: artificial
+XEventClass: George
+XEventClass: Jan
+XEventClass: Mitchell
+XEventClass: Michael
+XEventClass: Valentine
+XEventClass: Alfred
+XEventClass: Maria
+**********************************************
+Classifer: Event Name
+Class Size: 16
+XEventClass: Order
+XEventClass: Second Visit
+XEventClass: MRI
+XEventClass: ECG
+XEventClass: Examination under Anesthetic
+XEventClass: Admission Hospital
+XEventClass: CT
+XEventClass: Echography
+XEventClass: END
+XEventClass: START
+XEventClass: X-ray
+XEventClass: Surgery Report
+XEventClass: Third Visit
+XEventClass: Lab Test
+XEventClass: Preassessment
+XEventClass: First Visit
+**********************************************
+Classifer: MXML Legacy Classifier
+Class Size: 16
+XEventClass: Surgery Report+complete
+XEventClass: CT+complete
+XEventClass: ECG+complete
+XEventClass: MRI+complete
+XEventClass: Second Visit+complete
+XEventClass: Preassessment+complete
+XEventClass: Third Visit+complete
+XEventClass: X-ray+complete
+XEventClass: Examination under Anesthetic+complete
+XEventClass: Echography+complete
+XEventClass: Admission Hospital+complete
+XEventClass: Order+complete
+XEventClass: Lab Test+complete
+XEventClass: First Visit+complete
+XEventClass: END+complete
+XEventClass: START+complete
+**********************************************
+Classifer: Lifecycle transition
+Class Size: 1
+XEventClass: complete
+**********************************************
+##################################################
+LogProperties: printTimeBoundaries()
+##################################################
+Get Global Time Boundaries
+Get Start DateThu Jan 01 02:28:59 CET 1970
+Get End DateWed Jul 25 00:50:00 CET 1973
+##################################################
+LogProperties: metaAttributeInfo()
+##################################################
+Meta Attribute Info: 
+**********************************************
+Registerd Attributes: 
+**********************************************
+Attribute: concept:name
+Attribute Freq: 1
+Attribute Relative Freq: 0.25
+Attribute: description
+Attribute Freq: 1
+Attribute Relative Freq: 0.25
+Attribute: lifecycle:model
+Attribute Freq: 1
+Attribute Relative Freq: 0.25
+Attribute: source
+Attribute Freq: 1
+Attribute Relative Freq: 0.25
+Registerd Keys for Extentions: 
+**********************************************
+Extention Key: description
+Extention Key: source
+Properties of Attribute: 
+**********************************************
+**********************************************
+AttributeName: concept:name
+extentionSet: 0
+************ Iteration *******************
+**********************************************
+AttributeName: description
+extentionSet: 0
+************ Iteration *******************
+**********************************************
+AttributeName: lifecycle:model
+extentionSet: 0
+************ Iteration *******************
+**********************************************
+AttributeName: source
+extentionSet: 0
+************ Iteration *******************
+##################################################
+Log Attribute Info: 
+**********************************************
+Registerd Attributes: 
+**********************************************
+Registerd Keys for Extentions: 
+**********************************************
+Properties of Attribute: 
+**********************************************
+##################################################
+Trace Attribute Info: 
+**********************************************
+Registerd Attributes: 
+**********************************************
+Attribute: concept:name
+Attribute Freq: 500
+Attribute Relative Freq: 0.5
+Attribute: description
+Attribute Freq: 500
+Attribute Relative Freq: 0.5
+Registerd Keys for Extentions: 
+**********************************************
+Extention Key: description
+Properties of Attribute: 
+**********************************************
+**********************************************
+AttributeName: concept:name
+extentionSet: 0
+************ Iteration *******************
+**********************************************
+AttributeName: description
+extentionSet: 0
+************ Iteration *******************
+Dummy Log Pllugin End
+End plug-in DummyPluginXlog, took 18 milliseconds
