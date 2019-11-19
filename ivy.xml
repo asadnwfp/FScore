@@ -19,6 +19,9 @@
         <dependency org="prom" name="DataAwareExplorer" rev="latest" changing="true" transitive="true" />
         <dependency org="prom" name="LogFiltering" rev="latest" changing="true" transitive="true" />
         <dependency org="prom" name="StochasticPetriNets" rev="latest" changing="true" transitive="true" />
+        <dependency org="prom" name="DataAwareExplorer" rev="latest" changing="true" transitive="true" />  
+        <dependency org="prom" name="XESAlignmentExtension" rev="latest" changing="true" transitive="true" />
+        <dependency org="prom" name="XESLite" rev="latest" changing="true" transitive="true" />  
         <dependency conf="lib->default" org="org.eclipse.collections" name="eclipse-collections" rev="9.2.0" />
         <dependency org="prom" name="DecomposedReplayer" rev="latest" changing="true" transitive="true" />  
     	<!-- ProM packages. -->
