@@ -108,45 +108,7 @@ public class LogVariance {
 		}
 	}
 
-//	interface ColoringMode {
-//
-//		public final static ColoringMode EVENTCLASS = new ColoringMode() {
-//
-//			public String getName() {
-//				return "Color by Event Class";
-//			}
-//
-//			public EventColoring createColoring(Iterable<XTrace> traces, XEventClasses eventClasses) {
-//				return new EventColoringByClass(eventClasses);
-//			}
-//			
-//			public String toString() {
-//				return getName();
-//			}
-//			
-//		};
-//
-//		public final static ColoringMode NONE = new ColoringMode() {
-//
-//			public String getName() {
-//				return "No Color";
-//			}
-//
-//			public EventColoring createColoring(Iterable<XTrace> traces, XEventClasses eventClasses) {
-//				return new EventColoringWhite();
-//			}
-//
-//			public String toString() {
-//				return getName();
-//			}
-//			
-//		};
-//
-//		EventColoring createColoring(Iterable<XTrace> traces, XEventClasses eventClasses);
-//
-//		String getName();
-//
-//	}
+
 
 	public ImmutableListMultimap<XESTraceVariant, XTrace> getTraceVariants() {
 		final LogViewModel logViewModel = new LogViewModel(log);
