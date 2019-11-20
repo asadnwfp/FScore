@@ -17,7 +17,6 @@ import org.deckfour.xes.model.XTrace;
 import org.processmining.log.utils.XUtils;
 import org.processmining.logenhancement.view.LogViewVisualizer;
 import org.processmining.utils.ReusableMethods;
-import org.python.modules.synchronize;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
@@ -25,14 +24,12 @@ import com.google.common.collect.ImmutableListMultimap;
 public class LogVariance {
 
 	private XLog log;
-	private int cases, events, eventClasses, eventTypes, originators;
 
 	public LogVariance(XLog log) {
 		this.log = log;
 	}
 
 	public void instantiate() {
-		cases = log.size();
 		ProcessInstanceView processInstanceView = new ProcessInstanceView(log.get(499),
 				XLogInfoFactory.createLogInfo(log));
 		processInstanceView.drawEvent(0);
