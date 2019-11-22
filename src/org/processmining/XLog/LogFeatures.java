@@ -1,99 +1,50 @@
 package org.processmining.XLog;
 
-import java.awt.Color;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.classification.XEventClasses;
-import org.deckfour.xes.classification.XEventClassifier;
-import org.deckfour.xes.info.XLogInfoFactory;
 import org.deckfour.xes.info.impl.XLogInfoImpl;
 import org.deckfour.xes.model.XEvent;
 import org.deckfour.xes.model.XLog;
 import org.deckfour.xes.model.XTrace;
 import org.processmining.log.utils.XUtils;
-import org.processmining.logenhancement.view.LogViewVisualizer;
 import org.processmining.utils.ReusableMethods;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 
-public class LogVariance {
-
+/**
+ * 
+ * @author saadn
+ *	Based on Log Variance, Log Features is Another class
+ */
+public class LogFeatures {
 	private XLog log;
+	private LogViewModel logViewModel;
 	private ImmutableListMultimap<XESTraceVariant, XTrace> variants;
-
-	public LogVariance(XLog log) {
-		this.log = log;
-	}
-
-	public void instantiate() {
-		ProcessInstanceView processInstanceView = new ProcessInstanceView(log.get(499),
-				XLogInfoFactory.createLogInfo(log));
-		processInstanceView.drawEvent(0);
-		processInstanceView.drawEvent(1);
-		processInstanceView.drawInstanceFlag();
-		processInstanceView.drawEventFlag(0);
-
-		ReusableMethods.printLogs(ReusableMethods.DEBUG,"TotalVariants: " + showTraces().size());
-//		LogVarianceTrace();
-		getTraceVariants();
-	}
-
-	public Set<XTrace> showTraces() {
-		ReusableMethods.printLogs(ReusableMethods.DEBUG,
-				"*****************************************************************");
-		ReusableMethods.printLogs(ReusableMethods.DEBUG, this.getClass().getSimpleName() + ": showTraces()");
-		ReusableMethods.printLogs(ReusableMethods.DEBUG,
-				"*****************************************************************");
+	// Initiating class with log
+	public LogFeatures(XLog log) {
 		
-		ReusableMethods.printLogs(ReusableMethods.DEBUG,"Traces: " + log.size());
-
-		Set<XTrace> variants = new HashSet<XTrace>();
-		for (XTrace trace : log) {
-//			ReusableMethods.printLogs("*****************  Trace: "+ log.indexOf(trace) +"  ********************");
-//			BasicLogInfo.basicAttributes(trace.getAttributes());
-			variants.add(trace);
-
-		}
-		return variants;
+		this.log=log;
 	}
-
-	public void showEvents(XTrace trace) {
-		ReusableMethods.printLogs(ReusableMethods.DEBUG,"NumberOfEvents: " + trace.size());
-		for (XEvent event : trace) {
-			ReusableMethods.printLogs(ReusableMethods.DEBUG,"**************** Events " + trace.indexOf(event) + " ***********************");
-			BasicLogInfo.basicAttributes(event.getAttributes());
-		}
-
-	}
-
-	private void LogVarianceTrace() {
-		LogViewModel lvm = new LogViewModel(log);
+	
+	public synchronized void initiateLogViewModel() {
+		ReusableMethods.printLogs(ReusableMethods.DEBUG, "*****************************************************************");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG, this.getClass().getSimpleName() + ": initiateLogViewModel()");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG, "*****************************************************************");
+		
+		logViewModel = new LogViewModel();
 		XEventClasses eventClasses = XUtils.createEventClasses(XLogInfoImpl.NAME_CLASSIFIER, log);
-		lvm.setEventClasses(eventClasses);
-		Map<XEventClass, Color> colorMap = LogViewVisualizer.createColorMap(eventClasses);
-
-		variants = lvm.getTraceVariants();
+		logViewModel.setEventClasses(eventClasses);
+		
+		ImmutableListMultimap<XESTraceVariant, XTrace> variants = logViewModel.getTraceVariants();
 		ReusableMethods.printLogs(ReusableMethods.DEBUG,"LogVariants:  " + variants.size());
 		ReusableMethods.printLogs(ReusableMethods.DEBUG,"LogVariantsKeySet:  " + variants.keySet().size());
-		int index = 0;
-		for (XESTraceVariant xesTraceVariant : variants.keySet()) {
-			ImmutableList<XTrace> trace = variants.get(xesTraceVariant);
-			ReusableMethods.printLogs(ReusableMethods.DEBUG,"TraceIndex: " + index++);
-			ReusableMethods.printLogs(ReusableMethods.DEBUG,"EventSize: " + trace.size());
-		}
-		ReusableMethods.printLogs(ReusableMethods.DEBUG,"********************Event Clasifiers**************************");
-		for (XEventClassifier classifier : log.getClassifiers()) {
-			ReusableMethods.printLogs(ReusableMethods.DEBUG,"ClasiferName: " + classifier.name());
-		}
 	}
-
-
-
+	
 	public ImmutableListMultimap<XESTraceVariant, XTrace> getTraceVariants() {
 		final LogViewModel logViewModel = new LogViewModel(log);
 		final LogInfo logInfo = new LogInfo();
@@ -107,7 +58,7 @@ public class LogVariance {
 			@Override
 			public void run() {
 
-				System.out.println("*********** Starting Thread VarianceLoader *************");
+				ReusableMethods.printLogs(ReusableMethods.DEBUG, "*********** Starting Thread VarianceLoader *************");
 				variantLoader(logViewModel);
 				
 			}
@@ -124,7 +75,7 @@ public class LogVariance {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				System.out.println("*********** Starting Thread LogInfoLoader *************");
+				ReusableMethods.printLogs(ReusableMethods.DEBUG, "*********** Starting Thread LogInfoLoader *************");
 				
 				logInfoLoader(logViewModel,logInfo);
 				if (logInfo.numTraces % 1000 == 0) {
@@ -174,7 +125,7 @@ public class LogVariance {
 			logInfo.numEventClasses = eventClasses.size();
 		}
 	}
-
+	
 	private static class LogInfo {
 
 		int numTraces;
@@ -190,5 +141,7 @@ public class LogVariance {
 		Date lastEvent;
 
 	}
-
+	
+	
+	
 }

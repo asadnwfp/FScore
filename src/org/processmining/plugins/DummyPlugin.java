@@ -79,13 +79,13 @@ public class DummyPlugin {
 	@PluginVariant(variantLabel = "Dummy Mine XLog", requiredParameterLabels = { 0 })
 	public void dummyPluginXLog(UIPluginContext context, XLog log) throws ConnectionCannotBeObtained, AStarException {
 		//printLogStatus();
-		ReusableMethods.printLogs("Dummy Log Plugin Start");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"Dummy Log Plugin Start");
 //		Process progress = (Process) context.getProgress();
 		context.getProgress().setIndeterminate(true);
 		LogProperties logProperties = new LogProperties(context, log);
 		logProperties.properties();
 		context.getFutureResult(0).cancel(true);
-		ReusableMethods.printLogs("Dummy Log Plugin End");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"Dummy Log Plugin End");
 
 		
 	}

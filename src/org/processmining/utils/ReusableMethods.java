@@ -17,7 +17,7 @@ public class ReusableMethods {
 	public enum Logger {
 		CONSOLE, FILE_OUTPUT
 	};
-
+	public static final boolean DEBUG = true;
 	public static Logger logger = Logger.CONSOLE;
 	private static File file = new File(".");
 	private static PrintStream FileOutput = null;
@@ -94,6 +94,11 @@ public class ReusableMethods {
 
 		}
 
+	}
+	public static void printLogs(boolean debug, String message) {
+		if (debug) {
+			printLogs(message);
+		}
 	}
 
 	public static void printLogs(String message) {

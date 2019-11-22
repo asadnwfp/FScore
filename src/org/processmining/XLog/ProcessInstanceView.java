@@ -32,8 +32,12 @@ public class ProcessInstanceView  {
 	protected XTrace instance;
 
 	public ProcessInstanceView(XTrace instance, XLogInfo info) {
-		ReusableMethods.printLogs("##################################################");
-		ReusableMethods.printLogs("ProcessInstanceView");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,
+				"*****************************************************************");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG, this.getClass().getSimpleName() + ": ProcessInstanceView()");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,
+				"*****************************************************************");
+		
 		this.instance = instance;
 		this.info = info;
 		maxOccurrenceCount = 0;
@@ -43,14 +47,14 @@ public class ProcessInstanceView  {
 			}
 		}
 		int width = (instance.size() * elementWidth) + trackPadding + 300;
-		ReusableMethods.printLogs("Max Current Count: " + maxOccurrenceCount);
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"Max Current Count: " + maxOccurrenceCount);
 	}
 
 
 
 	protected int mapEventIndex(int x, int y) {
-		ReusableMethods.printLogs("##################################################");
-		ReusableMethods.printLogs("ProcessInstanceView: mapEventIndex()" );
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"##################################################");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"ProcessInstanceView: mapEventIndex()" );
 		if ((y >= trackY) && (y <= (trackY + trackHeight))) {
 			// y-coordinate matches, remap x to index
 			x -= trackPadding;
@@ -67,8 +71,10 @@ public class ProcessInstanceView  {
 	}
 
 	private String extractName(XTrace instance) {
-		ReusableMethods.printLogs("##################################################");
-		ReusableMethods.printLogs("ProcessInstanceView: extractName()" );
+ReusableMethods.printLogs(ReusableMethods.DEBUG, "*****************************************************************");
+ReusableMethods.printLogs(ReusableMethods.DEBUG, this.getClass().getSimpleName() + ": extractName()");
+ReusableMethods.printLogs(ReusableMethods.DEBUG, "*****************************************************************");
+
 		String name = XConceptExtension.instance().extractName(instance);
 		if (name == null) {
 			return "<no name>";
@@ -77,17 +83,17 @@ public class ProcessInstanceView  {
 	}
 
 	protected void drawInstanceFlag() {
-		ReusableMethods.printLogs("##################################################");
-		ReusableMethods.printLogs("ProcessInstanceView: drawInstanceFlag()" );
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"##################################################");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"ProcessInstanceView: drawInstanceFlag()" );
 		String name = extractName(instance);
 		String size = instance.size() + " events";
-		ReusableMethods.printLogs("Name: " + name);
-		ReusableMethods.printLogs("Size: " + size);
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"Name: " + name);
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"Size: " + size);
 	}
 
 	protected void drawEventFlag(int index){
-		ReusableMethods.printLogs("##################################################");
-		ReusableMethods.printLogs("ProcessInstanceView: drawEventFlag() : eventIndex: " + index );
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"##################################################");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"ProcessInstanceView: drawEventFlag() : eventIndex: " + index );
 		XExtendedEvent ate = new XExtendedEvent(instance.get(index));
 		XEventClass eventClass = info.getEventClasses().getClassOf(instance.get(index));
 		int occurrence = (eventClass != null ? eventClass.size() : 0);
@@ -109,19 +115,19 @@ public class ProcessInstanceView  {
 		
 		String [] eventFlag =  {ateName,ateTransition,ateResource,name,originator,timestamp};
 		for(String flag : eventFlag) {
-			ReusableMethods.printLogs("EventFlag: " + flag);
-			ReusableMethods.printLogs("**********************************************");
+			ReusableMethods.printLogs(ReusableMethods.DEBUG,"EventFlag: " + flag);
+			ReusableMethods.printLogs(ReusableMethods.DEBUG,"**********************************************");
 		}
 	}
 
 	protected void drawEvent( int index) {
-		ReusableMethods.printLogs("##################################################");
-		ReusableMethods.printLogs("ProcessInstanceView: drawEvent()  eventIndex: " + index );
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"##################################################");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"ProcessInstanceView: drawEvent()  eventIndex: " + index );
 		// set correct color for event
 		XEventClass eventClass = info.getEventClasses().getClassOf(instance.get(index));
 		int occurrence = (eventClass != null ? eventClass.size() : 0);
 		double frequency = (maxOccurrenceCount == 0 ? 0.0 : (double) occurrence / (double) maxOccurrenceCount);
-		ReusableMethods.printLogs("Occurance: " + occurrence);
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"Occurance: " + occurrence);
 	}
 
 

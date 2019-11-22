@@ -23,7 +23,7 @@ public class LogProperties {
 	}
 
 	public void properties() {
-		ReusableMethods.printLogs("LogProperties: properties()");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"LogProperties: properties()");
 		BasicLogInfo.log = log;
 //		BasicLogInfo.basicAttributes();
 //		BasicLogInfo.basicClassifiers();
@@ -37,6 +37,7 @@ public class LogProperties {
 		//Creating Log Traces
 		ReusableMethods.setContext(context);
 		new LogVariance(log).instantiate();
+		new LogFeatures(log).initiateLogViewModel();
 		ReusableMethods.removeContext();
 //		ReusableMethods.printLogs("**********************************************");
 
@@ -58,54 +59,63 @@ public class LogProperties {
 	}
 	
 	private void printEventsClasses() {
-		ReusableMethods.printLogs("##################################################");
-		ReusableMethods.printLogs("LogProperties: printEventsClasses()");
-		ReusableMethods.printLogs("##################################################");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,
+				"*****************************************************************");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG, this.getClass().getSimpleName() + ": printEventsClasses()");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,
+				"*****************************************************************");
+		
 		for(XEventClassifier classifier: logInfo.getEventClassifiers()) {
-			ReusableMethods.printLogs("Classifer: " + classifier.name());
-			ReusableMethods.printLogs("Class Size: " + logInfo.getEventClasses(classifier).getClasses().size());
+			ReusableMethods.printLogs(ReusableMethods.DEBUG,"Classifer: " + classifier.name());
+			ReusableMethods.printLogs(ReusableMethods.DEBUG,"Class Size: " + logInfo.getEventClasses(classifier).getClasses().size());
 			for(XEventClass xeventClass: logInfo.getEventClasses(classifier).getClasses()) {
-				ReusableMethods.printLogs("XEventClass: " + xeventClass);
+				ReusableMethods.printLogs(ReusableMethods.DEBUG,"XEventClass: " + xeventClass);
 				
 			}
-			ReusableMethods.printLogs("**********************************************");
+			ReusableMethods.printLogs(ReusableMethods.DEBUG,"**********************************************");
 		}
 	}
 	
 	private void printTimeBoundaries() {
-		ReusableMethods.printLogs("##################################################");
-		ReusableMethods.printLogs("LogProperties: printTimeBoundaries()");
-		ReusableMethods.printLogs("##################################################");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,
+				"*****************************************************************");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG, this.getClass().getSimpleName() + ": printTimeBoundaries()");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,
+				"*****************************************************************");
 		
-		ReusableMethods.printLogs("Get Global Time Boundaries");
+		
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"Get Global Time Boundaries");
 		
 		XTimeBoundsImpl timeBound= (XTimeBoundsImpl) logInfo.getLogTimeBoundaries();
-		ReusableMethods.printLogs("Get Start Date" + timeBound.getStartDate());
-		ReusableMethods.printLogs("Get End Date" + timeBound.getEndDate());
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"Get Start Date" + timeBound.getStartDate());
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"Get End Date" + timeBound.getEndDate());
 		
 	}
 	
 	
 	private void metaAttributeInfo() {
-		ReusableMethods.printLogs("##################################################");
-		ReusableMethods.printLogs("LogProperties: metaAttributeInfo()");
-		ReusableMethods.printLogs("##################################################");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,
+				"*****************************************************************");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG, this.getClass().getSimpleName() + ": metaAttributeInfo()");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,
+				"*****************************************************************");
+		
 		
 
-		ReusableMethods.printLogs("Meta Attribute Info: " );
-		ReusableMethods.printLogs("**********************************************");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"Meta Attribute Info: " );
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"**********************************************");
 		XAttributeInfoImpl attributeImp = (XAttributeInfoImpl) logInfo.getLogAttributeInfo();
 		printXAttributeInfoImpl(attributeImp);
 
-		ReusableMethods.printLogs("##################################################");
-		ReusableMethods.printLogs("Log Attribute Info: " );
-		ReusableMethods.printLogs("**********************************************");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"##################################################");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"Log Attribute Info: " );
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"**********************************************");
 		attributeImp = (XAttributeInfoImpl) logInfo.getMetaAttributeInfo();
 		printXAttributeInfoImpl(attributeImp);
 		
-		ReusableMethods.printLogs("##################################################");
-		ReusableMethods.printLogs("Trace Attribute Info: " );
-		ReusableMethods.printLogs("**********************************************");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"##################################################");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"Trace Attribute Info: " );
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"**********************************************");
 		attributeImp = (XAttributeInfoImpl) logInfo.getTraceAttributeInfo();
 		printXAttributeInfoImpl(attributeImp);
 		
@@ -113,20 +123,27 @@ public class LogProperties {
 	}
 
 	private void printXAttributeInfoImpl(XAttributeInfoImpl attributeImp) {
-		ReusableMethods.printLogs("Registerd Attributes: " );
-		ReusableMethods.printLogs("**********************************************");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,
+				"*****************************************************************");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,
+				this.getClass().getSimpleName() + ": printXAttributeInfoImpl()");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,
+				"*****************************************************************");
+		
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"Registerd Attributes: " );
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"**********************************************");
 		for(String key : attributeImp.getAttributeKeys()) {
-			ReusableMethods.printLogs("Attribute: " + key);
-			ReusableMethods.printLogs("Attribute Freq: " + attributeImp.getFrequency(key));
-			ReusableMethods.printLogs("Attribute Relative Freq: " + attributeImp.getRelativeFrequency(key));
+			ReusableMethods.printLogs(ReusableMethods.DEBUG,"Attribute: " + key);
+			ReusableMethods.printLogs(ReusableMethods.DEBUG,"Attribute Freq: " + attributeImp.getFrequency(key));
+			ReusableMethods.printLogs(ReusableMethods.DEBUG,"Attribute Relative Freq: " + attributeImp.getRelativeFrequency(key));
 		}
-		ReusableMethods.printLogs("Registerd Keys for Extentions: " );
-		ReusableMethods.printLogs("**********************************************");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"Registerd Keys for Extentions: " );
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"**********************************************");
 		for(String key : attributeImp.getKeysWithoutExtension()){
-			ReusableMethods.printLogs("Extention Key: " + key);
+			ReusableMethods.printLogs(ReusableMethods.DEBUG,"Extention Key: " + key);
 		}
-		ReusableMethods.printLogs("Properties of Attribute: " );
-		ReusableMethods.printLogs("**********************************************");
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"Properties of Attribute: " );
+		ReusableMethods.printLogs(ReusableMethods.DEBUG,"**********************************************");
 		for(XAttribute attribute: attributeImp.getAttributes()) {
 		BasicLogInfo.propertiesOfAttribute(attribute);
 		}
